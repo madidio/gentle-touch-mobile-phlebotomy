@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Gentle Touch Brand Palette — Harmonized with Logo */
+    --background: 270 37% 97%;            /* Soft Lavender Tint #F7F4FA */
+    --foreground: 213 27% 23%;            /* Dark Slate #2D3748 */
+
+    --card: 0 0% 100%;                     /* Clean White #FFFFFF */
+    --card-foreground: 213 27% 23%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 27% 23%;
+
+    --primary: 358 48% 45%;               /* Medium Carmine #AC3C3F */
+    --primary-foreground: 0 0% 100%;       /* Clean White */
+
+    --secondary: 2 41% 52%;               /* Matrix #B65552 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 270 30% 94%;                  /* Deeper Lavender for section alternation */
+    --muted-foreground: 213 20% 42%;
+
+    --accent: 266 27% 71%;                 /* Logan #B3A2C9 */
+    --accent-foreground: 358 48% 45%;       /* Medium Carmine on light lavender */
+
+    --highlight: 267 37% 80%;              /* Light Logan #C9B8DE — stars, badges on dark */
+    --highlight-foreground: 358 48% 45%;    /* Carmine text on light lavender */
+
+    --footer: 260 8% 7%;                   /* Woodsmoke #121114 */
+    --footer-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 270 15% 90%;                 /* Light lavender border */
+    --input: 270 15% 90%;
+    --ring: 358 48% 45%;                   /* Matches primary */
+
+    --chart-1: 358 48% 45%;
+    --chart-2: 2 41% 52%;
+    --chart-3: 266 27% 71%;
+    --chart-4: 267 37% 80%;
+    --chart-5: 270 30% 94%;
+
+    --radius: 0.625rem;                     /* 10px — Radius of Care */
+
+    /* Typography */
+    --font-heading: 'Lora', ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    --font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-display: 'Lora', ui-serif, Georgia, Cambria, "Times New Roman", serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    --sidebar-background: 260 8% 7%;       /* Woodsmoke */
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 266 27% 71%;        /* Logan */
+    --sidebar-primary-foreground: 358 48% 45%;
+    --sidebar-accent: 260 8% 12%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 260 8% 15%;
+    --sidebar-ring: 266 27% 71%;
+  }
+
+  .dark {
+    --background: 260 10% 10%;
+    --foreground: 0 0% 96%;
+    --card: 260 8% 14%;
+    --card-foreground: 0 0% 96%;
+    --popover: 260 8% 14%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 358 48% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 2 41% 60%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 260 8% 18%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 266 27% 55%;
+    --accent-foreground: 0 0% 100%;
+    --highlight: 267 37% 65%;
+    --highlight-foreground: 0 0% 100%;
+    --footer: 260 8% 7%;
+    --footer-foreground: 0 0% 96%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 96%;
+    --border: 260 8% 20%;
+    --input: 260 8% 20%;
+    --ring: 358 48% 55%;
+    --chart-1: 358 48% 55%;
+    --chart-2: 2 41% 60%;
+    --chart-3: 266 27% 55%;
+    --chart-4: 267 37% 65%;
+    --chart-5: 260 8% 30%;
+    --sidebar-background: 260 10% 8%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 266 27% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 260 8% 16%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 260 8% 16%;
+    --sidebar-ring: 266 27% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    font-size: 112.5%; /* 18px base — accessibility for aging eyes */
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+    color: hsl(var(--primary));
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+@layer components {
+  /* Squircle-ish softness for cards & buttons — "Radius of Care" */
+  .gt-card {
+    @apply rounded-xl bg-card text-card-foreground;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .gt-shadow {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .gt-shadow-lg {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  }
+}
