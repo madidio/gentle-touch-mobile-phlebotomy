@@ -3,12 +3,14 @@ import { Facebook, Linkedin, Instagram } from "lucide-react";
 
 const quickLinks = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
-  { label: "Services & Pricing", href: "/services" },
-  { label: "For Providers", href: "/providers" },
-  { label: "Contact", href: "/contact" },
-  { label: "Blog/Resources", href: "#blog" }
+  { label: "About", href: "/#about" },
+  { label: "Services", href: "/#services" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "For Providers", href: "/#providers" },
+  { label: "Contact", href: "/#contact" },
+  { label: "Blog/Resources", href: "#blog" },
 ];
+
 
 const legalLinks = [
   { label: "Privacy Policy", href: "#privacy" },
