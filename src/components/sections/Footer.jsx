@@ -30,7 +30,8 @@ export default function Footer() {
           {/* Column 1 - Logo & Tagline */}
           <div>
             <img
-              src="https://media.base44.com/images/public/6a51133670dca936488666fd/9d6bd26ec_GentletouchLogo.jpg"
+              src="https://media.<form
+              >com/images/public/6a51133670dca936488666fd/9d6bd26ec_GentletouchLogo.jpg"
               alt="Gentle Touch Mobile Blood Draw logo"
               className="h-auto w-40 max-w-full"
             />

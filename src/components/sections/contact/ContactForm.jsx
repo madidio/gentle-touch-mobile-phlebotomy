@@ -7,10 +7,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { base44 } from "@/api/base44Client";
+
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgogzqep";
 
 const inputClass =
   "w-full rounded-lg border border-border bg-white px-4 py-3 text-base text-foreground placeholder:text-foreground/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors";
+
 const labelClass = "block text-sm font-semibold text-primary mb-1.5";
 
 export default function ContactForm() {
@@ -19,33 +21,81 @@ export default function ContactForm() {
     email: "",
     phone: "",
     subject: "",
-    message: ""
+    message: "",
   });
+
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setForm((previousForm) => ({
+      ...previousForm,
+      [name]: value,
+    }));
   };
 
-  const handleSubjectChange = (val) => {
-    setForm((prev) => ({ ...prev, subject: val }));
+  const handleSubjectChange = (value) => {
+    setForm((previousForm) => ({
+      ...previousForm,
+      subject: value,
+    }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     setSubmitting(true);
     setError("");
+
     try {
-      await base44.entities.ContactMessage.create({
-        ...form,
-        message: form.message ? `[${form.subject}] ${form.message}` : `[${form.subject}]`
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          form_type: "Contact Form",
+          full_name: form.full_name,
+          email: form.email,
+          phone: form.phone,
+          subject: form.subject || "General Inquiry",
+          message: form.message,
+        }),
       });
+
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const formspreeError =
+          result?.errors
+            ?.map((item) => item.message)
+            .filter(Boolean)
+            .join(", ") || "The form could not be submitted.";
+
+        throw new Error(formspreeError);
+      }
+
+      setForm({
+        full_name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+
       setSuccess(true);
-      setForm({ full_name: "", email: "", phone: "", subject: "", message: "" });
-    } catch (err) {
-      setError("Something went wrong. Please call us at (402) 212-5964.");
+    } catch (submitError) {
+      console.error("Contact form submission failed:", submitError);
+
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Something went wrong. Please call us at (402) 212-5964."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -55,10 +105,21 @@ export default function ContactForm() {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl bg-muted p-8 text-center shadow-gt">
         <CheckCircle2 className="h-14 w-14 text-secondary" />
-        <p className="mt-4 text-lg font-semibold text-primary">Message sent!</p>
-        <p className="mt-2 text-sm text-foreground/70">We'll get back to you shortly.</p>
+
+        <p className="mt-4 text-lg font-semibold text-primary">
+          Message sent!
+        </p>
+
+        <p className="mt-2 text-sm text-foreground/70">
+          We&apos;ll get back to you shortly.
+        </p>
+
         <button
-          onClick={() => setSuccess(false)}
+          type="button"
+          onClick={() => {
+            setSuccess(false);
+            setError("");
+          }}
           className="mt-6 text-sm font-semibold text-secondary underline"
         >
           Send another message
@@ -68,72 +129,102 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 rounded-xl bg-muted p-7 shadow-gt sm:p-8">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-5 rounded-xl bg-muted p-7 shadow-gt sm:p-8"
+    >
       <div>
         <label htmlFor="full_name" className={labelClass}>
           Full Name <span className="text-destructive">*</span>
         </label>
+
         <input
           id="full_name"
           name="full_name"
           type="text"
           required
+          autoComplete="name"
           value={form.full_name}
           onChange={handleChange}
           className={inputClass}
           placeholder="Jane Doe"
         />
       </div>
+
       <div>
         <label htmlFor="email" className={labelClass}>
           Email Address <span className="text-destructive">*</span>
         </label>
+
         <input
           id="email"
           name="email"
           type="email"
           required
+          autoComplete="email"
           value={form.email}
           onChange={handleChange}
           className={inputClass}
           placeholder="jane@email.com"
         />
       </div>
+
       <div>
         <label htmlFor="phone" className={labelClass}>
           Phone Number <span className="text-destructive">*</span>
         </label>
+
         <input
           id="phone"
           name="phone"
           type="tel"
           required
+          autoComplete="tel"
           value={form.phone}
           onChange={handleChange}
           className={inputClass}
           placeholder="(402) 555-0100"
         />
       </div>
+
       <div>
         <label htmlFor="subject" className={labelClass}>
           Subject
         </label>
+
         <Select value={form.subject} onValueChange={handleSubjectChange}>
-          <SelectTrigger className="w-full rounded-lg border border-border bg-white px-4 py-3 text-base text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <SelectTrigger
+            id="subject"
+            className="w-full rounded-lg border border-border bg-white px-4 py-3 text-base text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          >
             <SelectValue placeholder="Select a subject" />
           </SelectTrigger>
+
           <SelectContent>
-            <SelectItem value="General Inquiry">General Inquiry</SelectItem>
-            <SelectItem value="Schedule Appointment">Schedule Appointment</SelectItem>
-            <SelectItem value="Pricing Question">Pricing Question</SelectItem>
-            <SelectItem value="Provider Partnership">Provider Partnership</SelectItem>
+            <SelectItem value="General Inquiry">
+              General Inquiry
+            </SelectItem>
+
+            <SelectItem value="Schedule Appointment">
+              Schedule Appointment
+            </SelectItem>
+
+            <SelectItem value="Pricing Question">
+              Pricing Question
+            </SelectItem>
+
+            <SelectItem value="Provider Partnership">
+              Provider Partnership
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
+
       <div>
         <label htmlFor="message" className={labelClass}>
           Message
         </label>
+
         <textarea
           id="message"
           name="message"
@@ -144,9 +235,16 @@ export default function ContactForm() {
           placeholder="How can we help you?"
         />
       </div>
+
       {error && (
-        <p className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p>
+        <p
+          role="alert"
+          className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          {error}
+        </p>
       )}
+
       <button
         type="submit"
         disabled={submitting}
@@ -154,7 +252,8 @@ export default function ContactForm() {
       >
         {submitting ? (
           <>
-            <Loader2 className="h-5 w-5 animate-spin" /> Sending...
+            <Loader2 className="h-5 w-5 animate-spin" />
+            Sending...
           </>
         ) : (
           "Send Message"
