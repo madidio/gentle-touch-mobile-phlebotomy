@@ -11,6 +11,7 @@ import About from '@/pages/About';
 import Services from '@/pages/Services';
 import Providers from '@/pages/Providers';
 import Contact from '@/pages/Contact';
+
 // Add page imports here
 
 const AuthenticatedApp = () => {

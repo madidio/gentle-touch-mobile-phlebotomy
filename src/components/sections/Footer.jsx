@@ -1,7 +1,7 @@
 import React from "react";
 import { Facebook, Linkedin, Instagram } from "lucide-react";
 
-const quickLinks = [
+const navigation = [
   { label: "Home", href: "/" },
   { label: "About", href: "/#about" },
   { label: "Services", href: "/#services" },
