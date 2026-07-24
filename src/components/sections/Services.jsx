@@ -8,7 +8,7 @@ const services = [
     description: "Routine lab work drawn in the comfort of your home. Results within 48 hours.",
     price: "$80",
     cta: "Book Now",
-    href: "/contact"
+    href: "/#book"
   },
   {
     icon: Zap,
@@ -16,7 +16,7 @@ const services = [
     description: "Urgent lab needs requiring expedited processing and delivery.",
     price: "$120",
     cta: "Book Stat Draw",
-    href: "/contact"
+    href: "/#book"
   },
   {
     icon: Moon,
@@ -24,7 +24,7 @@ const services = [
     description: "Early morning appointments for fasting labs. We work around your schedule.",
     price: "$80",
     cta: "Book Now",
-    href: "/contact"
+    href: "/#book"
   },
   {
     icon: Heart,
@@ -32,7 +32,7 @@ const services = [
     description: "Specialized care for elderly patients with fragile veins or anxiety. Our gentle approach makes all the difference.",
     price: "$80",
     cta: "Book Now",
-    href: "/contact"
+    href: "/#book"
   },
   {
     icon: CalendarHeart,
@@ -40,7 +40,7 @@ const services = [
     description: "Need a specific time or have special requirements? We'll work with you to accommodate.",
     price: "Flexible",
     cta: "Contact Us",
-    href: "/contact"
+    href: "/#book"
   }
 ];
 
