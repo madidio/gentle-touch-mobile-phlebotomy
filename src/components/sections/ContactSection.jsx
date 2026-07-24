@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
-const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT;
+// Use the Vercel environment variable if available.
+// Otherwise, fall back to the working Formspree endpoint.
+const FORMSPREE_ENDPOINT =
+  import.meta.env.VITE_FORMSPREE_ENDPOINT ||
+  "https://formspree.io/f/xgogzqep";
 
 const initialForm = {
   full_name: "",
