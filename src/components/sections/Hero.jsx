@@ -47,7 +47,7 @@ export default function Hero() {
                 Book Your Appointment Now
               </a>
               <a
-                href="/services"
+                href="/#services"
                 className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl border-2 border-primary bg-transparent px-8 py-3.5 text-base font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
               >
                 <ClipboardList className="h-5 w-5" />

@@ -99,7 +99,7 @@ export default function Services() {
         <p className="mt-10 text-center text-sm italic text-foreground/60">
           *Medicare/Medicaid not accepted. Card or HSA only. Cancellation policy applies.
           See our{" "}
-          <a href="/services" className="font-semibold text-primary underline hover:text-secondary">
+          <a href="/#services" className="font-semibold text-primary underline hover:text-secondary">
             Services &amp; Pricing page
           </a>{" "}
           for details.
