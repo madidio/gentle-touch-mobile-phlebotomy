@@ -41,7 +41,7 @@ export default function Hero() {
             {/* CTAs */}
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               <a
-                href="/contact"
+                href="/#book"
                 className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-gt-lg transition-all duration-200 hover:scale-[1.02] hover:bg-secondary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/50"
               >
                 Book Your Appointment Now

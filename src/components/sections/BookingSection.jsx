@@ -9,7 +9,9 @@ import {
   Loader2,
 } from "lucide-react";
 
-const FORMSPREE_ENDPOINT =import.meta.env.VITE_FORMSPREE_ENDPOINT ;
+const FORMSPREE_ENDPOINT =
+  import.meta.env.VITE_FORMSPREE_ENDPOINT ||
+  "https://formspree.io/f/xgogzqep";
 
 const serviceAreas = [
   "Papillion",
