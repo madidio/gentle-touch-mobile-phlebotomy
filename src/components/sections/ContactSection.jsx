@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/xgogzqep";
+const FORMSPREE_ENDPOINT = import.meta.env.VITE_FORMSPREE_ENDPOINT;
 
 const initialForm = {
   full_name: "",
