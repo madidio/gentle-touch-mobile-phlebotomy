@@ -16,13 +16,13 @@ export const AuthProvider = ({ children }) => {
 
       logout: () => {
         console.info(
-          'Logout is not enabled because Base44 authentication was removed.'
+          'Logout is not available.'
         );
       },
 
       navigateToLogin: () => {
         console.info(
-          'Login is not enabled because Base44 authentication was removed.'
+          'Login is not available.'
         );
       },
 

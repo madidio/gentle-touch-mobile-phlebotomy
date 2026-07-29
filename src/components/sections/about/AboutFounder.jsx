@@ -8,7 +8,7 @@ export default function AboutFounder() {
       <div className="mx-auto max-w-5xl px-6 sm:px-10 lg:px-16">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
           <div className="flex justify-center">
-            <img src="https://media.base44.com/images/public/6a4e90e55673f77beb8d6f49/c19707ca5_new_headshot.jpg"
+            <img src="C:\Users\Madidio\OneDrive\Desktop\Public New headshot.jpg"
 
             alt="Professional headshot of Kofi Gunubu, founder of Gentle Touch Mobile Blood Draw."
             className="h-56 w-56 rounded-full object-cover object-center border-[3px] border-primary shadow-gt-lg sm:h-64 sm:w-64 opacity-100 px-1"
