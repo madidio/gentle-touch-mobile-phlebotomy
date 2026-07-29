@@ -31,9 +31,9 @@ export default function AboutHero() {
             </div>
           </div>
           <div className="relative overflow-hidden rounded-xl shadow-gt-lg">
-            <img src="C:\Users\Madidio\OneDrive\Desktop\Public images Phlebo drawing blood.jpg"
+            <img src="public/images/Phlebotomist-drawing-blood.jpg"
 
-            alt="A compassionate phlebotomist caring for a senior patient at home."
+            alt="Blood Draw"
             className="h-[380px] w-full object-cover sm:h-[460px] lg:h-[500px]"
             loading="eager" />
             

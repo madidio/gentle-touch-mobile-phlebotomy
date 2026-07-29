@@ -15,8 +15,8 @@ export default function Hero() {
         {/* Left — Image */}
         <div className="relative flex-1 lg:w-1/2">
           <img
-            src="C:\Users\Madidio\OneDrive\Desktop\Public Phlebotomy tubes.jpg"
-            alt="A gloved hand holding a blood collection tube with a rack of other tubes in the background."
+            src="public/images/phlebotomy-tubes.jpg"
+            alt="Phlebotomy"
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
