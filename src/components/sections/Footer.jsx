@@ -1,14 +1,12 @@
 import React from "react";
 import { Facebook, Linkedin, Instagram } from "lucide-react";
 
-const navigation = [
+const quickLinks = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/#about" },
-  { label: "Services", href: "/#services" },
-  { label: "Pricing", href: "/#pricing" },
-  { label: "For Providers", href: "/#providers" },
-  { label: "Contact", href: "/#contact" },
-  { label: "Blog/Resources", href: "#blog" },
+  { label: "About", href: "/about" },
+  { label: "Services & Pricing", href: "/services" },
+  { label: "Providers", href: "/providers" },
+  { label: "Contact", href: "/contact" },
 ];
 
 
@@ -32,11 +30,10 @@ export default function Footer() {
           {/* Column 1 - Logo & Tagline */}
           <div>
             <img
-              src="https://media.<form
-              >com/images/public/6a51133670dca936488666fd/9d6bd26ec_GentletouchLogo.jpg"
-              alt="Gentle Touch Mobile Blood Draw logo"
-              className="h-auto w-40 max-w-full"
-            />
+  src="/images/Gentle-Touch-Logo.jpg"
+  alt="Gentle Touch Mobile Blood Draw logo"
+  className="h-auto w-72 max-w-full"
+/>
             <p className="mt-4 text-sm leading-relaxed text-white/70">
               Bringing the lab to you, one gentle draw at a time.
             </p>
