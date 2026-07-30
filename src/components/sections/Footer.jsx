@@ -26,7 +26,7 @@ export default function Footer() {
           <div>
             <img
   src="/images/Gentle-Touch-Logo.jpg"
-  alt="Gentle Touch Mobile Blood Draw logo"
+  alt="Gentle Touch Mobile Blood Draw logo" 
   className="h-auto w-72 max-w-full"
 />
             <p className="mt-4 text-sm leading-relaxed text-white/70">
