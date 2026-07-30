@@ -15,7 +15,7 @@ export default function Hero() {
         {/* Left — Image */}
         <div className="relative flex-1 lg:w-1/2">
           <img
-            src="public/images/phlebotomy-tubes.jpg"
+            src="/images/phlebotomy-tubes.jpg"
             alt="Phlebotomy"
             className="absolute inset-0 h-full w-full object-cover"
           />
