@@ -16,11 +16,6 @@ const legalLinks = [
   { label: "HIPAA Notice", href: "#hipaa" }
 ];
 
-const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Instagram, href: "#", label: "Instagram" }
-];
 
 export default function Footer() {
   return (
