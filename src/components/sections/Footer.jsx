@@ -8,12 +8,6 @@ const quickLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
-const legalLinks = [
-  { label: "Privacy Policy", href: "#privacy" },
-  { label: "Terms of Service", href: "#terms" },
-  { label: "HIPAA Notice", href: "#hipaa" },
-];
-
 export default function Footer() {
   return (
     <footer className="w-full bg-footer text-white">
@@ -83,22 +77,10 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/15 pt-6 sm:flex-row">
+        <div className="mt-12 border-t border-white/15 pt-6 text-center">
           <p className="text-sm text-white/60">
             © 2026 Gentle Touch Mobile Blood Draw, LLC. All rights reserved.
           </p>
-
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            {legalLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-sm text-white/60 transition-colors hover:text-[#AC3C3F]"
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
         </div>
       </div>
     </footer>
