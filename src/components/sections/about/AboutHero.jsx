@@ -1,12 +1,13 @@
 import React from "react";
-import { CalendarHeart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { CalendarHeart } from "lucide-react";
 
-export default function AboutHero() {
+const AboutHero = () => {
   return (
     <section className="w-full bg-muted py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+          {/* Left Content */}
           <div>
             <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-accent-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -18,34 +19,36 @@ export default function AboutHero() {
             </h1>
 
             <p className="mt-6 text-lg leading-relaxed text-foreground">
-              To provide professional and compassionate at-home phlebotomy services to the
-              elderly and homebound, ensuring their essential lab work is completed with
-              patience, respect, and clinical excellence.
+              To provide professional and compassionate at-home phlebotomy
+              services to the elderly and homebound, ensuring their essential
+              lab work is completed with patience, respect, and clinical
+              excellence.
             </p>
 
             <div className="mt-8">
               <Link
                 to="/#book"
-                className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-gt-lg transition-all hover:scale-[1.03] hover:bg-secondary"
+                className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-gt-lg transition-all duration-300 hover:scale-105 hover:bg-secondary"
               >
                 <CalendarHeart className="h-5 w-5" />
-                Book an Appointment
+                <span>Book an Appointment</span>
               </Link>
             </div>
           </div>
 
+          {/* Right Image */}
           <div className="relative overflow-hidden rounded-xl shadow-gt-lg">
             <img
-    src="/images/Phlebotomist-drawing-blood.jpg"
-    alt="Phlebotomist drawing blood"
-    style={{
-      display: "block",
-      width: "100%",
-      height: "500px",
-      objectFit: "cover",
-      border: "5px solid red",
-    }}
-  />
-</div>
+              src="/images/Phlebotomist-drawing-blood.jpg"
+              alt="Phlebotomist drawing blood"
+              className="h-[380px] w-full object-cover sm:h-[460px] lg:h-[500px]"
+              loading="eager"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
   );
-}
+};
+
+export default AboutHero;
