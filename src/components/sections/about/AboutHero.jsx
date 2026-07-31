@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { CalendarHeart } from "lucide-react";
 
 const AboutHero = () => {
@@ -26,13 +25,13 @@ const AboutHero = () => {
             </p>
 
             <div className="mt-8">
-              <Link
-                to="/#book"
+              <a
+                href="/#book"
                 className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-gt-lg transition-all duration-300 hover:scale-105 hover:bg-secondary"
               >
                 <CalendarHeart className="h-5 w-5" />
                 <span>Book an Appointment</span>
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -52,3 +51,4 @@ const AboutHero = () => {
 };
 
 export default AboutHero;
+
