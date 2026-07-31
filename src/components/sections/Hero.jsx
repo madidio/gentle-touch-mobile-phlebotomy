@@ -1,11 +1,18 @@
 import React from "react";
-import { CalendarHeart, ClipboardList, ShieldCheck, Award, Clock, UserCheck } from "lucide-react";
+import {
+  CalendarHeart,
+  ClipboardList,
+  ShieldCheck,
+  Award,
+  Clock,
+  UserCheck,
+} from "lucide-react";
 
 const trustItems = [
   { icon: ShieldCheck, label: "Licensed & Insured" },
   { icon: Award, label: "CPT (ASCP)" },
   { icon: Clock, label: "10+ Years Experience" },
-  { icon: UserCheck, label: "Background Checked" }
+  { icon: UserCheck, label: "Background Checked" },
 ];
 
 export default function Hero() {
@@ -13,10 +20,10 @@ export default function Hero() {
     <section className="relative w-full overflow-hidden">
       <div className="flex min-h-[600px] flex-col lg:flex-row">
         {/* Left — Image */}
-        <div className="relative flex-1 lg:w-1/2">
+        <div className="relative min-h-[360px] flex-1 lg:min-h-0 lg:w-1/2">
           <img
             src="/images/phlebotomy-tubes.jpg"
-            alt="Phlebotomy"
+            alt="Phlebotomy supplies prepared for a mobile blood draw"
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>
@@ -34,42 +41,54 @@ export default function Hero() {
             </h1>
 
             <p className="mt-4 max-w-lg text-base leading-relaxed text-foreground/70 sm:text-lg">
-              Compassionate, professional mobile phlebotomy services for the elderly and
-              homebound in the Omaha Metro. We come to you, so you never have to wait.
+              Compassionate, professional mobile phlebotomy services for the
+              elderly and homebound in the Omaha Metro. We come to you, so you
+              never have to wait.
             </p>
 
             {/* CTAs */}
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
               <a
-                href="/#book"
-                className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-gt-lg transition-all duration-200 hover:scale-[1.02] hover:bg-secondary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/50"
+                href="#book"
+                className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-gt-lg transition-all duration-200 hover:scale-[1.02] hover:bg-secondary focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/50"
               >
-                Book Your Appointment Now
+                <CalendarHeart className="h-5 w-5" />
+                <span>Book Your Appointment Now</span>
               </a>
+
               <a
-                href="/services"
+                href="#services"
                 className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl border-2 border-primary bg-transparent px-8 py-3.5 text-base font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
               >
                 <ClipboardList className="h-5 w-5" />
-                View Pricing &amp; Services
+                <span>View Pricing &amp; Services</span>
               </a>
             </div>
 
             {/* Trust Badge */}
             <div className="mt-8 border-t border-border pt-6">
-              <div className="inline-flex flex-wrap items-center gap-x-4 gap-y-2 rounded-full bg-accent px-5 py-2.5">
-                {trustItems.map((item, idx) => {
+              <div className="inline-flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-accent px-5 py-3">
+                {trustItems.map((item, index) => {
                   const Icon = item.icon;
+
                   return (
-                    <div key={item.label} className="flex items-center gap-2">
-                      <Icon className="h-4 w-4 text-white" />
-                      <span className="text-sm font-medium text-white">
-                        {item.label}
-                      </span>
-                      {idx < trustItems.length - 1 && (
-                        <span className="text-white/40">|</span>
+                    <React.Fragment key={item.label}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4 text-white" />
+                        <span className="text-sm font-medium text-white">
+                          {item.label}
+                        </span>
+                      </div>
+
+                      {index < trustItems.length - 1 && (
+                        <span
+                          aria-hidden="true"
+                          className="hidden text-white/40 sm:inline"
+                        >
+                          |
+                        </span>
                       )}
-                    </div>
+                    </React.Fragment>
                   );
                 })}
               </div>

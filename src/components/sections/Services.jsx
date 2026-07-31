@@ -5,14 +5,17 @@ export default function Services() {
   return (
     <main className="min-h-screen bg-background">
       {/* Page introduction */}
-      <section className="bg-primary px-6 py-16 text-white sm:py-20">
+      <section
+        id="services"
+        className="scroll-mt-24 bg-primary px-6 py-16 text-white sm:py-20"
+      >
         <div className="mx-auto max-w-5xl text-center">
           <span className="inline-flex rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
             Gentle Touch Mobile Phlebotomy
           </span>
 
           <h1 className="mt-5 font-heading text-4xl font-bold sm:text-5xl">
-             Services &amp; Pricing Page
+            Services &amp; Pricing
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg">
@@ -62,3 +65,4 @@ export default function Services() {
     </main>
   );
 }
+

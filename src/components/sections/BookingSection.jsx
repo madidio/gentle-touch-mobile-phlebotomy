@@ -119,7 +119,7 @@ export default function BookingSection() {
   };
 
   return (
-    <section id="book" className="w-full bg-muted py-20 sm:py-24">
+    <section id="book" className="w-full scroll-mt-24 bg-muted py-20 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 sm:px-10 lg:px-16">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-5">
           <div className="lg:col-span-3">
