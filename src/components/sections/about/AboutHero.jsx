@@ -36,14 +36,16 @@ export default function AboutHero() {
 
           <div className="relative overflow-hidden rounded-xl shadow-gt-lg">
             <img
-              src="/images/Phlebotomist-drawing-blood.jpg"
-              alt="Blood Draw"
-              className="h-[380px] w-full object-cover sm:h-[460px] lg:h-[500px]"
-              loading="eager"
-            />
-          </div>
-        </div>
-      </div>
-    </section>
+    src="/images/Phlebotomist-drawing-blood.jpg"
+    alt="Phlebotomist drawing blood"
+    style={{
+      display: "block",
+      width: "100%",
+      height: "500px",
+      objectFit: "cover",
+      border: "5px solid red",
+    }}
+  />
+</div>
   );
 }
