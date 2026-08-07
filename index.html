@@ -1,61 +1,112 @@
 <!doctype html>
 <html lang="en">
-  <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "MedicalBusiness",
-  "name": "Gentle Touch Mobile Blood Draw, LLC",
-  "url": "https://omahagentletouchlabs.com",
-  "logo": "https://omahagentletouchlabs.com/images/Gentle-Touch-Logo.jpg",
-  "image": "https://omahagentletouchlabs.com/images/Gentle-Touch-Logo.jpg",
-  "telephone": "+1-402-212-5964",
-  "email": "gentletouchlabs27@gmail.com",
-  "description": "Professional mobile phlebotomy services serving Omaha and surrounding communities, including Douglas County and Sarpy County.",
-  "areaServed": [
-    {
-      "@type": "AdministrativeArea",
-      "name": "Douglas County, Nebraska"
-    },
-    {
-      "@type": "AdministrativeArea",
-      "name": "Sarpy County, Nebraska"
-    }
-  ],
-  "openingHoursSpecification": [
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday"
-      ],
-      "opens": "06:00",
-      "closes": "18:00"
-    },
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": "Saturday",
-      "opens": "08:00",
-      "closes": "15:30"
-    }
-  ]
-}
-</script>
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      name="description"
+      content="Gentle Touch Mobile Blood Draw provides compassionate, professional mobile phlebotomy services throughout the Omaha Metro, including Douglas and Sarpy Counties."
+    />
+
+    <link
+      rel="icon"
+      type="image/jpeg"
+      href="/images/Gentle-Touch-Logo.jpg"
+    />
+
     <link rel="manifest" href="/manifest.json" />
-    <meta name="description" content="Gentle Touch Mobile Blood Draw, LLC — compassionate, professional mobile phlebotomy services for the elderly and homebound. We bring clinical excellence to your doorstep." />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <title>Gentle Touch Mobile Blood Draw | Compassionate Mobile Phlebotomy</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>
+      Gentle Touch Mobile Blood Draw | Mobile Phlebotomy in Omaha
+    </title>
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "MedicalBusiness",
+        "name": "Gentle Touch Mobile Blood Draw, LLC",
+        "url": "https://omahagentletouchlabs.com",
+        "logo": "https://omahagentletouchlabs.com/images/Gentle-Touch-Logo.jpg",
+        "image": "https://omahagentletouchlabs.com/images/Gentle-Touch-Logo.jpg",
+        "telephone": "+1-402-212-5964",
+        "email": "gentletouchlabs27@gmail.com",
+        "description": "Professional mobile phlebotomy services serving the Omaha Metro, including Douglas County and Sarpy County.",
+        "areaServed": [
+          {
+            "@type": "AdministrativeArea",
+            "name": "Douglas County, Nebraska"
+          },
+          {
+            "@type": "AdministrativeArea",
+            "name": "Sarpy County, Nebraska"
+          },
+          {
+            "@type": "City",
+            "name": "Papillion, Nebraska"
+          },
+          {
+            "@type": "City",
+            "name": "Bellevue, Nebraska"
+          },
+          {
+            "@type": "City",
+            "name": "La Vista, Nebraska"
+          },
+          {
+            "@type": "City",
+            "name": "Gretna, Nebraska"
+          },
+          {
+            "@type": "City",
+            "name": "Elkhorn, Nebraska"
+          },
+          {
+            "@type": "City",
+            "name": "Bennington, Nebraska"
+          },
+          {
+            "@type": "City",
+            "name": "Ralston, Nebraska"
+          }
+        ],
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday"
+            ],
+            "opens": "06:00",
+            "closes": "18:00"
+          },
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": "Saturday",
+            "opens": "08:00",
+            "closes": "15:30"
+          }
+        ]
+      }
+    </script>
   </head>
+
   <body>
     <div id="root"></div>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
