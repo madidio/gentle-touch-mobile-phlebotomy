@@ -9,7 +9,7 @@ import {
 const faqs = [
   {
     q: "How do I book an appointment?",
-    a: "You can book online using our booking form or call us at (402) 212-5964."
+    a: "You can book online using our booking form or call us at (402) 212-5964 or (402) 739-9898."
   },
   {
     q: "What areas do you serve?",

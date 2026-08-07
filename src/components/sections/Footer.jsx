@@ -55,12 +55,21 @@ export default function Footer() {
 
             <ul className="mt-4 space-y-2.5 text-sm text-white/70">
               <li>
-                <a
-                  href="tel:+14022125964"
-                  className="transition-colors hover:text-[#AC3C3F]"
-                >
-                  (402) 212-5964
-                </a>
+                <div className="space-y-1">
+  <a
+    href="tel:+14022125964"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Primary: (402) 212-5964
+  </a>
+
+  <a
+    href="tel:+14027399898"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Alternate: (402) 739-9898
+  </a>
+</div>
               </li>
 
               <li>

@@ -24,7 +24,21 @@ export default function ProviderContact() {
             <ul className="mt-4 space-y-3">
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-secondary" />
-                <a href="tel:+14022125964" className="text-base font-medium text-foreground hover:text-secondary">(402) 212-5964</a>
+                <div className="space-y-1">
+  <a
+    href="tel:+14022125964"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Primary: (402) 212-5964
+  </a>
+
+  <a
+    href="tel:+14027399898"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Alternate: (402) 739-9898
+  </a>
+</div>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-secondary" />

@@ -138,7 +138,7 @@ export default function BookingSection() {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Something went wrong. Please try again or call us at (402) 212-5964."
+          : "Something went wrong. Please try again or call us at (402) 212-5964 or (402) 739-9898 to request an appointment."
       );
     } finally {
       setSubmitting(false);
@@ -171,12 +171,21 @@ export default function BookingSection() {
 
               <p className="mt-3 text-sm leading-relaxed text-foreground/70">
                 For time-sensitive needs, call{" "}
-                <a
-                  href="tel:+14022125964"
-                  className="font-semibold text-secondary underline underline-offset-4"
-                >
-                  (402) 212-5964
-                </a>
+                <div className="space-y-1">
+  <a
+    href="tel:+14022125964"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Primary: (402) 212-5964
+  </a>
+
+  <a
+    href="tel:+14027399898"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Alternate: (402) 739-9898
+  </a>
+</div>
                 .
               </p>
 
@@ -570,12 +579,21 @@ export default function BookingSection() {
 
                   <div>
                     <p className="text-sm text-white/70">Phone</p>
-                    <a
-                      href="tel:+14022125964"
-                      className="text-base font-semibold hover:text-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight"
-                    >
-                      (402) 212-5964
-                    </a>
+                    <div className="space-y-1">
+  <a
+    href="tel:+14022125964"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Primary: (402) 212-5964
+  </a>
+
+  <a
+    href="tel:+14027399898"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Alternate: (402) 739-9898
+  </a>
+</div>
                   </div>
                 </li>
 

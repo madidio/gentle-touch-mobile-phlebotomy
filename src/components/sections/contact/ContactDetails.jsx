@@ -6,9 +6,21 @@ const details = [
     icon: Phone,
     label: "Phone",
     content: (
-      <a href="tel:+14022125964" className="font-semibold text-primary hover:text-secondary">
-        (402) 212-5964
-      </a>
+      <div className="space-y-1">
+  <a
+    href="tel:+14022125964"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Primary: (402) 212-5964
+  </a>
+
+  <a
+    href="tel:+14027399898"
+    className="block text-base font-semibold hover:text-highlight"
+  >
+    Alternate: (402) 739-9898
+  </a>
+</div>
     )
   },
   {

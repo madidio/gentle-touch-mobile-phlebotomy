@@ -94,7 +94,7 @@ export default function ContactForm() {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Something went wrong. Please call us at (402) 212-5964."
+          : "Something went wrong. Please call us at (402) 212-5964 or (402) 739-9898."
       );
     } finally {
       setSubmitting(false);
