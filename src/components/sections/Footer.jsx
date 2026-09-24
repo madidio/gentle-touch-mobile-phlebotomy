@@ -17,10 +17,14 @@ export default function Footer() {
           {/* Column 1 - Logo & Tagline */}
           <div>
             <img
-              src="/images/Gentle-Touch-Logo.jpg"
-              alt="Gentle Touch Mobile Blood Draw logo"
-              className="h-auto w-72 max-w-full"
-            />
+ src="/images/Gentle-Touch-Logo.webp"
+  alt="Gentle Touch Mobile Blood Draw logo"
+width="576"
+height="575"
+  className="h-auto w-72 max-w-full"
+  loading="lazy"
+  decoding="async"
+/>
 
             <p className="mt-4 text-sm leading-relaxed text-white/70">
               Bringing the lab to you, one gentle draw at a time.

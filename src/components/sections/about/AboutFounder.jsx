@@ -8,11 +8,15 @@ export default function AboutFounder() {
       <div className="mx-auto max-w-5xl px-6 sm:px-10 lg:px-16">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
           <div className="flex justify-center">
-            <img src="/images/Founder-headshot.jpg"
-
-            alt="PFounder"
-            className="h-56 w-56 rounded-full object-cover object-center border-[3px] border-primary shadow-gt-lg sm:h-64 sm:w-64 opacity-100 px-1"
-            loading="lazy" />
+           <img
+src="/images/Founder-headshot.webp"
+  alt="Kofi Gunubu, founder and certified phlebotomist"
+width="512"
+  height="566"
+  className="h-56 w-56 rounded-full border-[3px] border-primary object-cover object-center px-1 opacity-100 shadow-gt-lg sm:h-64 sm:w-64"
+  loading="lazy"
+  decoding="async"
+/>
             
           </div>
           <div>

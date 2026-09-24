@@ -37,12 +37,15 @@ const AboutHero = () => {
 
           {/* Right Image */}
           <div className="relative overflow-hidden rounded-xl shadow-gt-lg">
-            <img
-              src="/images/Phlebotomist-drawing-blood.jpg"
-              alt="Phlebotomist drawing blood"
-              className="h-[380px] w-full object-cover sm:h-[460px] lg:h-[500px]"
-              loading="eager"
-            />
+           <img
+  src="/images/Phlebotomist-drawing-blood.jpg"
+  alt="Phlebotomist performing a mobile blood draw"
+  width="236"
+  height="132"
+  className="h-[380px] w-full object-cover sm:h-[460px] lg:h-[500px]"
+  loading="eager"
+  decoding="async"
+/>
           </div>
         </div>
       </div>
