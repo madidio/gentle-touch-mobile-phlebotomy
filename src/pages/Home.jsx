@@ -14,10 +14,13 @@ function Home() {
         path="/"
       />
 
-      <Hero />
-      <Services />
-      <AboutHero />
-      <BookingSection />
+      <main>
+        <Hero />
+        <Services />
+        <AboutHero />
+        <BookingSection />
+      </main>
+
       <Footer />
     </>
   );

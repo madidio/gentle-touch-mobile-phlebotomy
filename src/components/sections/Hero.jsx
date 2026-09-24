@@ -46,9 +46,10 @@ export default function Hero() {
             </h1>
 
             <p className="mt-4 max-w-lg text-base leading-relaxed text-foreground/70 sm:text-lg">
-              Compassionate, professional mobile phlebotomy services for the
-              elderly and homebound in the Omaha Metro. We come to you, so you
-              never have to wait.
+              Compassionate, professional mobile blood draws for elderly,
+              homebound, and other patients throughout Omaha, Douglas County,
+              Sarpy County, and surrounding communities. We bring phlebotomy
+              services directly to your home.
             </p>
 
             {/* CTAs */}
