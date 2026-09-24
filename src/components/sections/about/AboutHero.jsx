@@ -3,6 +3,7 @@ import { CalendarHeart } from "lucide-react";
 
 const AboutHero = ({ headingLevel = "h2" }) => {
   const Heading = headingLevel;
+  const isAboutPage = headingLevel === "h1";
 
   return (
     <section className="w-full bg-muted py-16 sm:py-24">
@@ -20,13 +21,14 @@ const AboutHero = ({ headingLevel = "h2" }) => {
             </Heading>
 
             <p className="mt-6 text-lg leading-relaxed text-foreground">
-              To provide professional and compassionate at-home phlebotomy
-              services to the elderly and homebound, ensuring their essential
-              lab work is completed with patience, respect, and clinical
+              We provide professional and compassionate at-home phlebotomy
+              services for elderly, homebound, and other patients who benefit
+              from convenient blood collection in the comfort of home.
+              Every visit is handled with patience, respect, and clinical
               excellence.
             </p>
 
-            <div className="mt-8">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
                 href="/#book"
                 className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-gt-lg transition-all duration-300 hover:scale-105 hover:bg-secondary"
@@ -34,6 +36,15 @@ const AboutHero = ({ headingLevel = "h2" }) => {
                 <CalendarHeart className="h-5 w-5" />
                 <span>Book an Appointment</span>
               </a>
+
+              {!isAboutPage && (
+                <a
+                  href="/about"
+                  className="inline-flex min-h-[52px] items-center justify-center rounded-xl border-2 border-primary px-8 py-3.5 text-base font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
+                >
+                  Learn More About Us
+                </a>
+              )}
             </div>
           </div>
 
