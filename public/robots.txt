@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gentle-touch-mobile-phlebotomy.vercel.app/sitemap.xml
+Sitemap: https://omahagentletouchlabs.com/sitemap.xml
