@@ -22,15 +22,15 @@ export default function Hero() {
         {/* Left — Image */}
         <div className="relative min-h-[360px] flex-1 lg:min-h-0 lg:w-1/2">
           <img
-  src="/images/phlebotomy-tubes.jpg"
-  alt="Phlebotomy supplies prepared for a mobile blood draw"
-  width="235"
-  height="157"
-  className="absolute inset-0 h-full w-full object-cover"
-  loading="eager"
-  fetchPriority="high"
-  decoding="async"
-/>
+            src="/images/phlebotomy-tubes-hero.webp"
+            alt="Blood collection tubes prepared for professional mobile phlebotomy"
+            width="1400"
+            height="788"
+            className="absolute inset-0 h-full w-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
         </div>
 
         {/* Right — Content */}
