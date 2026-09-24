@@ -42,7 +42,7 @@ export default function Hero() {
             </span>
 
             <h1 className="mt-5 font-heading text-3xl font-bold leading-tight text-primary sm:text-4xl lg:text-[2.75rem] lg:leading-[1.15]">
-              Bringing the Lab to You, One Gentle Draw at a Time.
+              Mobile Blood Draws &amp; Phlebotomy in Omaha, NE
             </h1>
 
             <p className="mt-4 max-w-lg text-base leading-relaxed text-foreground/70 sm:text-lg">

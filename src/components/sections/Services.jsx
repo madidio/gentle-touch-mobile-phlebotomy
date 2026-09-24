@@ -3,7 +3,7 @@ import PricingTable from "@/components/sections/services/PricingTable";
 
 export default function Services() {
   return (
-    <main className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       {/* Page introduction */}
       <section
         id="services"
@@ -14,9 +14,9 @@ export default function Services() {
             Gentle Touch Mobile Phlebotomy
           </span>
 
-          <h1 className="mt-5 font-heading text-4xl font-bold sm:text-5xl">
-            Services &amp; Pricing
-          </h1>
+          <h2 className="mt-5 font-heading text-4xl font-bold sm:text-5xl">
+            Mobile Blood Draw Services &amp; Pricing
+          </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/80 sm:text-lg">
             Professional mobile phlebotomy services delivered in the comfort
@@ -62,7 +62,6 @@ export default function Services() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
-

@@ -16,7 +16,7 @@ export default function About() {
         path="/about"
       />
 
-      <AboutHero />
+      <AboutHero headingLevel="h1" />
       <AboutStory />
       <AboutValues />
       <AboutFounder />

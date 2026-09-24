@@ -160,7 +160,7 @@ export default function BookingSection() {
                 id="booking-heading"
                 className="font-heading text-2xl font-semibold text-primary sm:text-3xl"
               >
-                Request an Appointment
+                Request a Mobile Blood Draw Appointment
               </h2>
 
               <p className="mt-3 text-base leading-relaxed text-foreground/70">
@@ -169,25 +169,25 @@ export default function BookingSection() {
                 this form does not create a confirmed appointment.
               </p>
 
-              <p className="mt-3 text-sm leading-relaxed text-foreground/70">
-                For time-sensitive needs, call{" "}
-                <div className="space-y-1">
-  <a
-    href="tel:+14022125964"
-    className="block text-base font-semibold hover:text-highlight"
-  >
-    Primary: (402) 212-5964
-  </a>
+              <div className="mt-3 text-sm leading-relaxed text-foreground/70">
+                <p>For time-sensitive needs, call:</p>
 
-  <a
-    href="tel:+14027399898"
-    className="block text-base font-semibold hover:text-highlight"
-  >
-    Alternate: (402) 739-9898
-  </a>
-</div>
-                .
-              </p>
+                <div className="mt-1 space-y-1">
+                  <a
+                    href="tel:+14022125964"
+                    className="block text-base font-semibold hover:text-highlight"
+                  >
+                    Primary: (402) 212-5964
+                  </a>
+
+                  <a
+                    href="tel:+14027399898"
+                    className="block text-base font-semibold hover:text-highlight"
+                  >
+                    Alternate: (402) 739-9898
+                  </a>
+                </div>
+              </div>
 
               {success ? (
                 <div
@@ -579,21 +579,22 @@ export default function BookingSection() {
 
                   <div>
                     <p className="text-sm text-white/70">Phone</p>
-                    <div className="space-y-1">
-  <a
-    href="tel:+14022125964"
-    className="block text-base font-semibold hover:text-highlight"
-  >
-    Primary: (402) 212-5964
-  </a>
 
-  <a
-    href="tel:+14027399898"
-    className="block text-base font-semibold hover:text-highlight"
-  >
-    Alternate: (402) 739-9898
-  </a>
-</div>
+                    <div className="space-y-1">
+                      <a
+                        href="tel:+14022125964"
+                        className="block text-base font-semibold hover:text-highlight"
+                      >
+                        Primary: (402) 212-5964
+                      </a>
+
+                      <a
+                        href="tel:+14027399898"
+                        className="block text-base font-semibold hover:text-highlight"
+                      >
+                        Alternate: (402) 739-9898
+                      </a>
+                    </div>
                   </div>
                 </li>
 
@@ -605,6 +606,7 @@ export default function BookingSection() {
 
                   <div className="min-w-0">
                     <p className="text-sm text-white/70">Email</p>
+
                     <a
                       href="mailto:gentletouchlabs27@gmail.com"
                       className="break-all text-base font-semibold hover:text-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight"
