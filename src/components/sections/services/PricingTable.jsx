@@ -19,7 +19,7 @@ const rows = [
   {
     service: "Travel Fee (Beyond 25 miles)",
     price: "$0.725/mile",
-    details: "Applied to round-trip mileage. Rate based on 2026 IRS standard.",
+    details: "Applied to round-trip mileage beyond 25 miles.",
   },
 ];
 
@@ -27,6 +27,17 @@ export default function PricingTable() {
   return (
     <section className="w-full bg-muted py-16 sm:py-20">
       <div className="mx-auto max-w-4xl px-6 sm:px-10 lg:px-16">
+        <div className="mb-10 text-center">
+          <h2 className="font-heading text-2xl font-semibold text-primary sm:text-3xl">
+            Mobile Blood Draw Pricing
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/60 sm:text-lg">
+            Transparent pricing for mobile blood collection throughout the
+            Omaha Metro.
+          </p>
+        </div>
+
         {/* Desktop table */}
         <div className="hidden overflow-hidden rounded-xl shadow-gt sm:block">
           <table className="w-full text-left">
@@ -35,9 +46,11 @@ export default function PricingTable() {
                 <th className="px-6 py-4 font-heading text-sm font-semibold uppercase tracking-wider text-primary">
                   Service
                 </th>
+
                 <th className="px-6 py-4 font-heading text-sm font-semibold uppercase tracking-wider text-primary">
                   Price
                 </th>
+
                 <th className="px-6 py-4 font-heading text-sm font-semibold uppercase tracking-wider text-primary">
                   Details
                 </th>
@@ -45,19 +58,21 @@ export default function PricingTable() {
             </thead>
 
             <tbody>
-              {rows.map((r, i) => (
+              {rows.map((row, index) => (
                 <tr
-                  key={r.service}
-                  className={i % 2 === 0 ? "bg-white" : "bg-muted"}
+                  key={row.service}
+                  className={index % 2 === 0 ? "bg-white" : "bg-muted"}
                 >
                   <td className="px-6 py-4 font-medium text-foreground">
-                    {r.service}
+                    {row.service}
                   </td>
+
                   <td className="px-6 py-4 font-semibold text-secondary">
-                    {r.price}
+                    {row.price}
                   </td>
+
                   <td className="px-6 py-4 text-sm text-foreground/60">
-                    {r.details}
+                    {row.details}
                   </td>
                 </tr>
               ))}
@@ -67,16 +82,22 @@ export default function PricingTable() {
 
         {/* Mobile cards */}
         <div className="space-y-4 sm:hidden">
-          {rows.map((r) => (
+          {rows.map((row) => (
             <div
-              key={r.service}
+              key={row.service}
               className="rounded-xl bg-white p-5 shadow-gt"
             >
-              <p className="font-medium text-foreground">{r.service}</p>
+              <h3 className="font-heading text-base font-semibold text-primary">
+                {row.service}
+              </h3>
+
               <p className="mt-1 font-heading text-xl font-semibold text-secondary">
-                {r.price}
+                {row.price}
               </p>
-              <p className="mt-2 text-sm text-foreground/60">{r.details}</p>
+
+              <p className="mt-2 text-sm text-foreground/60">
+                {row.details}
+              </p>
             </div>
           ))}
         </div>

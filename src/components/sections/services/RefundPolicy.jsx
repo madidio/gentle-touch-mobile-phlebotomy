@@ -4,7 +4,7 @@ import { AlertCircle } from "lucide-react";
 const policies = [
   "Cancellations made 24 hours in advance will incur a $25 cancellation fee.",
   "Same-day cancellations are non-refundable.",
-  "We appreciate your understanding and cooperation."
+  "We appreciate your understanding and cooperation.",
 ];
 
 export default function RefundPolicy() {
@@ -16,18 +16,24 @@ export default function RefundPolicy() {
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary/15">
               <AlertCircle className="h-6 w-6 text-secondary" />
             </div>
-            <h3 className="font-heading text-xl font-semibold text-primary sm:text-2xl">
+
+            <h2 className="font-heading text-xl font-semibold text-primary sm:text-2xl">
               Cancellation &amp; Refund Policy
-            </h3>
+            </h2>
           </div>
+
           <p className="mt-4 text-sm text-foreground/60 sm:text-base">
             We understand that schedules change. Please review our policy below.
           </p>
+
           <ul className="mt-6 space-y-3">
-            {policies.map((p) => (
-              <li key={p} className="flex items-start gap-3">
+            {policies.map((policy) => (
+              <li key={policy} className="flex items-start gap-3">
                 <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-secondary" />
-                <span className="text-sm text-foreground/80 sm:text-base">{p}</span>
+
+                <span className="text-sm text-foreground/80 sm:text-base">
+                  {policy}
+                </span>
               </li>
             ))}
           </ul>

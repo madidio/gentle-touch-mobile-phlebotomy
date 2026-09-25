@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "What areas do you serve?",
-    a: "We serve Douglas and Sarpy Counties, including Papillion, Bellevue, La Vista, Gretna, Elkhorn, Bennington, and Ralston.",
+    a: "We serve the Omaha Metro, including communities throughout Douglas and Sarpy Counties such as Omaha, Papillion, Bellevue, La Vista, Gretna, Elkhorn, Bennington, and Ralston.",
   },
   {
     q: "Do you accept insurance?",
@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "Is there a travel fee?",
-    a: "A travel fee of $0.725 per mile (2026 IRS standard) applies for round-trip mileage beyond 25 miles from our base location.",
+    a: "A travel fee of $0.725 per mile applies to round-trip mileage beyond 25 miles from our base location.",
   },
   {
     q: "What is your cancellation policy?",
@@ -42,18 +42,18 @@ export default function ContactFAQ() {
         </h2>
 
         <Accordion type="single" collapsible className="mt-8 space-y-3">
-          {faqs.map((f, i) => (
+          {faqs.map((faq, index) => (
             <AccordionItem
-              key={i}
-              value={`item-${i}`}
+              key={faq.q}
+              value={`item-${index}`}
               className="rounded-xl bg-white px-6 shadow-gt"
             >
               <AccordionTrigger className="text-left font-heading text-base font-semibold text-primary hover:no-underline">
-                {f.q}
+                {faq.q}
               </AccordionTrigger>
 
               <AccordionContent className="text-sm text-foreground/70 sm:text-base">
-                {f.a}
+                {faq.a}
               </AccordionContent>
             </AccordionItem>
           ))}

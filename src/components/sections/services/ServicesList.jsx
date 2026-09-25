@@ -33,7 +33,18 @@ export default function ServicesList() {
   return (
     <section className="w-full bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-5xl px-6 sm:px-10 lg:px-16">
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="text-center">
+          <h2 className="font-heading text-2xl font-semibold text-primary sm:text-3xl">
+            Mobile Blood Draw Services
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-foreground/60 sm:text-lg">
+            Professional mobile phlebotomy services designed to make blood
+            collection more convenient for patients throughout the Omaha Metro.
+          </p>
+        </div>
+
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
           {services.map((s) => {
             const Icon = s.icon;
 
@@ -51,7 +62,9 @@ export default function ServicesList() {
                     {s.title}
                   </h3>
 
-                  <p className="mt-1 text-sm text-foreground/60">{s.text}</p>
+                  <p className="mt-1 text-sm text-foreground/60">
+                    {s.text}
+                  </p>
                 </div>
               </div>
             );

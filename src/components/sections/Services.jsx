@@ -5,7 +5,7 @@ import PricingTable from "@/components/sections/services/PricingTable";
 export default function Services() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Page introduction */}
+      {/* Services introduction */}
       <section
         id="services"
         className="scroll-mt-24 bg-primary px-6 py-16 text-white sm:py-20"
@@ -28,11 +28,7 @@ export default function Services() {
       </section>
 
       {/* Pricing information */}
-      <section className="px-6 py-16 sm:py-20">
-        <div className="mx-auto max-w-6xl">
-          <PricingTable />
-        </div>
-      </section>
+      <PricingTable />
 
       {/* Appointment call to action */}
       <section className="bg-accent px-6 py-14">
@@ -42,7 +38,7 @@ export default function Services() {
           </h2>
 
           <p className="mx-auto mt-4 max-w-2xl text-white/80">
-            Book a convenient mobile blood-draw appointment in the Omaha Metro
+            Book a convenient mobile blood draw appointment in the Omaha Metro
             area.
           </p>
 
