@@ -93,7 +93,7 @@ height="575"
         {/* Bottom Bar */}
         <div className="mt-12 border-t border-white/15 pt-6 text-center">
           <p className="text-sm text-white/60">
-            © 2026 Gentle Touch Mobile Blood Draw, LLC. All rights reserved.
+            &copy; 2026 Gentle Touch Mobile Blood Draw, LLC. All rights reserved.
           </p>
         </div>
       </div>

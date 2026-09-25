@@ -45,11 +45,15 @@ const details = [
       </div>
     )
   },
-  {
-    icon: MapPin,
-    label: "Service Area",
-    content: <p className="font-semibold text-primary">Douglas &amp; Sarpy Counties</p>
-  }
+ {
+  icon: MapPin,
+  label: "Service Area",
+  content: (
+    <p className="font-semibold text-primary">
+      Omaha Metro, Douglas &amp; Sarpy Counties
+    </p>
+  ),
+}
 ];
 
 export default function ContactDetails() {
@@ -72,7 +76,7 @@ export default function ContactDetails() {
 
       <div className="mt-6 overflow-hidden rounded-xl shadow-gt">
         <iframe
-          title="Omaha Metro Service Area Map"
+          title="Omaha Metro Mobile Blood Draw Service Area Map"
           src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d96027.0!2d-96.131!3d41.2925!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1700000000000"
           width="100%"
           height="280"
