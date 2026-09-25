@@ -2,6 +2,7 @@ import Hero from "@/components/sections/Hero";
 import Services from "@/components/sections/Services";
 import AboutHero from "@/components/sections/about/AboutHero";
 import HomeProviders from "@/components/sections/HomeProviders";
+import Testimonials from "@/components/sections/Testimonials";
 import BookingSection from "@/components/sections/BookingSection";
 import Footer from "@/components/sections/Footer";
 import PageMeta from "@/components/seo/PageMeta";
@@ -20,6 +21,7 @@ function Home() {
         <Services />
         <AboutHero />
         <HomeProviders />
+        <Testimonials />
         <BookingSection />
       </main>
 
