@@ -30,44 +30,60 @@
 
     <link rel="manifest" href="/manifest.json" />
 
+    <!-- Preload homepage hero image for faster LCP -->
+    <link
+      rel="preload"
+      as="image"
+      href="/images/phlebotomy-tubes-hero.webp"
+      fetchpriority="high"
+    />
+
     <!-- Social sharing -->
     <meta
       property="og:title"
       content="Mobile Blood Draws Omaha, NE | Gentle Touch"
     />
+
     <meta
       property="og:description"
       content="Professional mobile phlebotomy services serving Omaha, Douglas County, Sarpy County and surrounding communities."
     />
+
     <meta property="og:type" content="website" />
+
     <meta
       property="og:url"
       content="https://omahagentletouchlabs.com/"
     />
+
     <meta
       property="og:image"
       content="https://omahagentletouchlabs.com/images/Gentle-Touch-Logo.jpg"
     />
 
     <meta name="twitter:card" content="summary_large_image" />
+
     <meta
       name="twitter:title"
       content="Mobile Blood Draws Omaha, NE | Gentle Touch"
     />
+
     <meta
       name="twitter:description"
       content="Compassionate mobile blood draws throughout the Omaha Metro."
     />
+
     <meta
       name="twitter:image"
       content="https://omahagentletouchlabs.com/images/Gentle-Touch-Logo.jpg"
     />
 
-    <!-- Google Fonts: non-render-blocking stylesheet -->
+    <!-- Google Fonts: non-render-blocking -->
     <link
       rel="preconnect"
       href="https://fonts.googleapis.com"
     />
+
     <link
       rel="preconnect"
       href="https://fonts.gstatic.com"
@@ -169,6 +185,8 @@
 
   <body>
     <div id="root"></div>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+

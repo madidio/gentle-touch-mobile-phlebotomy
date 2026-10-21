@@ -1,3 +1,4 @@
+
 import fs from "node:fs";
 import path from "node:path";
 
@@ -5,12 +6,14 @@ const SITE_NAME = "Gentle Touch Mobile Blood Draw";
 const SITE_URL = "https://omahagentletouchlabs.com";
 const SOCIAL_IMAGE = `${SITE_URL}/images/Gentle-Touch-Logo.jpg`;
 
+const HERO_IMAGE = "/images/phlebotomy-tubes-hero.webp";
+
 const routes = [
   {
     path: "/",
-    title: "Mobile Phlebotomy in Omaha, NE",
+    title: "Mobile Blood Draws Omaha, NE",
     description:
-      "Gentle Touch Mobile Blood Draw provides compassionate, professional mobile phlebotomy services throughout the Omaha Metro, including Douglas and Sarpy Counties.",
+      "Convenient mobile blood draws at your home or office in Omaha, Douglas County and Sarpy County. Explore services, pricing and scheduling with Gentle Touch.",
   },
   {
     path: "/about",
@@ -67,6 +70,20 @@ function removeExistingSeo(html) {
     .replace(/<link[^>]+rel=["']canonical["'][^>]*>/gi, "");
 }
 
+function removeHomepageImagePreload(html) {
+  // Remove the homepage-only preload from inner pages.
+  // This also removes its optional explanatory comment.
+  return html
+    .replace(
+      /<!--\s*Preload homepage hero image for faster LCP\s*-->\s*/gi,
+      ""
+    )
+    .replace(
+      /<link\b(?=[^>]*\brel=["']preload["'])(?=[^>]*\bas=["']image["'])(?=[^>]*\bhref=["']\/images\/phlebotomy-tubes-hero\.webp["'])[^>]*\/?>/gi,
+      ""
+    );
+}
+
 for (const route of routes) {
   const canonical =
     route.path === "/" ? `${SITE_URL}/` : `${SITE_URL}${route.path}`;
@@ -95,6 +112,12 @@ for (const route of routes) {
   `;
 
   let html = removeExistingSeo(baseHtml);
+
+  // Only the homepage needs the hero image preload.
+  if (route.path !== "/") {
+    html = removeHomepageImagePreload(html);
+  }
+
   html = html.replace("</head>", `${seo}\n</head>`);
 
   const outputPath =
