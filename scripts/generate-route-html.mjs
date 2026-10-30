@@ -1,4 +1,5 @@
 
+
 import fs from "node:fs";
 import path from "node:path";
 
@@ -39,6 +40,12 @@ const routes = [
     description:
       "Contact Gentle Touch Mobile Blood Draw to schedule professional mobile phlebotomy services in Omaha, Douglas County, Sarpy County, and surrounding communities.",
   },
+  {
+    path: "/privacy-policy",
+    title: "Privacy Policy",
+    description:
+      "Learn how Gentle Touch Mobile Blood Draw, LLC collects, uses, shares, and protects personal information submitted through our website.",
+  },
 ];
 
 const distDir = path.resolve("dist");
@@ -71,8 +78,10 @@ function removeExistingSeo(html) {
 }
 
 function removeHomepageImagePreload(html) {
-  // Remove the homepage-only preload from inner pages.
-  // This also removes its optional explanatory comment.
+  // Keep the homepage hero image preload only on the homepage.
+  // Remove it from About, Services, Providers, Contact,
+  // and Privacy Policy pages.
+
   return html
     .replace(
       /<!--\s*Preload homepage hero image for faster LCP\s*-->\s*/gi,
@@ -86,18 +95,34 @@ function removeHomepageImagePreload(html) {
 
 for (const route of routes) {
   const canonical =
-    route.path === "/" ? `${SITE_URL}/` : `${SITE_URL}${route.path}`;
+    route.path === "/"
+      ? `${SITE_URL}/`
+      : `${SITE_URL}${route.path}`;
 
   const fullTitle = `${route.title} | ${SITE_NAME}`;
 
   const seo = `
     <title>${escapeHtml(fullTitle)}</title>
-    <meta name="description" content="${escapeHtml(route.description)}" />
+
+    <meta
+      name="description"
+      content="${escapeHtml(route.description)}"
+    />
+
     <meta name="robots" content="index, follow" />
+
     <link rel="canonical" href="${canonical}" />
 
-    <meta property="og:title" content="${escapeHtml(fullTitle)}" />
-    <meta property="og:description" content="${escapeHtml(route.description)}" />
+    <meta
+      property="og:title"
+      content="${escapeHtml(fullTitle)}"
+    />
+
+    <meta
+      property="og:description"
+      content="${escapeHtml(route.description)}"
+    />
+
     <meta property="og:type" content="website" />
     <meta property="og:url" content="${canonical}" />
     <meta property="og:image" content="${SOCIAL_IMAGE}" />
@@ -106,29 +131,49 @@ for (const route of routes) {
     <meta property="og:locale" content="en_US" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${escapeHtml(fullTitle)}" />
-    <meta name="twitter:description" content="${escapeHtml(route.description)}" />
+
+    <meta
+      name="twitter:title"
+      content="${escapeHtml(fullTitle)}"
+    />
+
+    <meta
+      name="twitter:description"
+      content="${escapeHtml(route.description)}"
+    />
+
     <meta name="twitter:image" content="${SOCIAL_IMAGE}" />
   `;
 
   let html = removeExistingSeo(baseHtml);
 
-  // Only the homepage needs the hero image preload.
+  // Only the homepage should preload its hero image.
   if (route.path !== "/") {
     html = removeHomepageImagePreload(html);
   }
 
+  // Insert route-specific SEO tags.
   html = html.replace("</head>", `${seo}\n</head>`);
 
+  // Generate the correct HTML file for each route.
   const outputPath =
     route.path === "/"
       ? path.join(distDir, "index.html")
-      : path.join(distDir, route.path.slice(1), "index.html");
+      : path.join(
+          distDir,
+          route.path.slice(1),
+          "index.html"
+        );
 
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  fs.mkdirSync(path.dirname(outputPath), {
+    recursive: true,
+  });
+
   fs.writeFileSync(outputPath, html, "utf8");
 
   console.log(`Generated ${route.path} -> ${outputPath}`);
 }
 
-console.log("Route-specific SEO HTML generation complete.");
+console.log(
+  "Route-specific SEO HTML generation complete."
+);

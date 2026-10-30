@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -7,6 +8,7 @@ const quickLinks = [
   { label: "Services & Pricing", href: "/services" },
   { label: "Providers", href: "/providers" },
   { label: "Contact", href: "/contact" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
 ];
 
 export default function Footer() {
@@ -17,14 +19,14 @@ export default function Footer() {
           {/* Column 1 - Logo & Tagline */}
           <div>
             <img
- src="/images/Gentle-Touch-Logo.webp"
-  alt="Gentle Touch Mobile Blood Draw logo"
-width="576"
-height="575"
-  className="h-auto w-72 max-w-full"
-  loading="lazy"
-  decoding="async"
-/>
+              src="/images/Gentle-Touch-Logo.webp"
+              alt="Gentle Touch Mobile Blood Draw logo"
+              width="576"
+              height="575"
+              className="h-auto w-72 max-w-full"
+              loading="lazy"
+              decoding="async"
+            />
 
             <p className="mt-4 text-sm leading-relaxed text-white/70">
               Bringing the lab to you, one gentle draw at a time.
@@ -42,7 +44,7 @@ height="575"
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-sm text-white/70 transition-colors hover:text-[#AC3C3F]"
+                    className="text-sm text-white/70 transition-colors hover:text-highlight"
                   >
                     {link.label}
                   </Link>
@@ -60,26 +62,26 @@ height="575"
             <ul className="mt-4 space-y-2.5 text-sm text-white/70">
               <li>
                 <div className="space-y-1">
-  <a
-    href="tel:+14022125964"
-    className="block text-base font-semibold hover:text-highlight"
-  >
-    Primary: (402) 212-5964
-  </a>
+                  <a
+                    href="tel:+14022125964"
+                    className="block text-base font-semibold hover:text-highlight"
+                  >
+                    Primary: (402) 212-5964
+                  </a>
 
-  <a
-    href="tel:+14027399898"
-    className="block text-base font-semibold hover:text-highlight"
-  >
-    Alternate: (402) 739-9898
-  </a>
-</div>
+                  <a
+                    href="tel:+14027399898"
+                    className="block text-base font-semibold hover:text-highlight"
+                  >
+                    Alternate: (402) 739-9898
+                  </a>
+                </div>
               </li>
 
               <li>
                 <a
                   href="mailto:gentletouchlabs27@gmail.com"
-                  className="break-all transition-colors hover:text-[#AC3C3F]"
+                  className="break-all transition-colors hover:text-highlight"
                 >
                   gentletouchlabs27@gmail.com
                 </a>
@@ -95,6 +97,13 @@ height="575"
           <p className="text-sm text-white/60">
             &copy; 2026 Gentle Touch Mobile Blood Draw, LLC. All rights reserved.
           </p>
+
+          <Link
+            to="/privacy-policy"
+            className="mt-3 inline-block text-sm text-white/70 underline underline-offset-4 transition-colors hover:text-highlight"
+          >
+            Privacy Policy
+          </Link>
         </div>
       </div>
     </footer>
