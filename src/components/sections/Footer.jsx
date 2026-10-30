@@ -9,6 +9,7 @@ const quickLinks = [
   { label: "Providers", href: "/providers" },
   { label: "Contact", href: "/contact" },
   { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms of Service", href: "/terms-of-service" },
 ];
 
 export default function Footer() {
@@ -95,17 +96,33 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 border-t border-white/15 pt-6 text-center">
           <p className="text-sm text-white/60">
-            &copy; 2026 Gentle Touch Mobile Blood Draw, LLC. All rights reserved.
+            &copy; 2026 Gentle Touch Mobile Blood Draw, LLC.
+            All rights reserved.
           </p>
 
-          <Link
-            to="/privacy-policy"
-            className="mt-3 inline-block text-sm text-white/70 underline underline-offset-4 transition-colors hover:text-highlight"
-          >
-            Privacy Policy
-          </Link>
+          {/* Legal Links */}
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            <Link
+              to="/privacy-policy"
+              className="text-sm text-white/70 underline underline-offset-4 transition-colors hover:text-highlight"
+            >
+              Privacy Policy
+            </Link>
+
+            <span className="text-sm text-white/40" aria-hidden="true">
+              |
+            </span>
+
+            <Link
+              to="/terms-of-service"
+              className="text-sm text-white/70 underline underline-offset-4 transition-colors hover:text-highlight"
+            >
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
   );
 }
+

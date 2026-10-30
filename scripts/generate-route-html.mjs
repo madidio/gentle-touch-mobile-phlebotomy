@@ -1,5 +1,4 @@
 
-
 import fs from "node:fs";
 import path from "node:path";
 
@@ -46,6 +45,12 @@ const routes = [
     description:
       "Learn how Gentle Touch Mobile Blood Draw, LLC collects, uses, shares, and protects personal information submitted through our website.",
   },
+  {
+    path: "/terms-of-service",
+    title: "Terms of Service",
+    description:
+      "Review appointment scheduling, payment requirements, cancellation and refund policies, and mobile phlebotomy service terms for Gentle Touch Mobile Blood Draw, LLC.",
+  },
 ];
 
 const distDir = path.resolve("dist");
@@ -79,8 +84,7 @@ function removeExistingSeo(html) {
 
 function removeHomepageImagePreload(html) {
   // Keep the homepage hero image preload only on the homepage.
-  // Remove it from About, Services, Providers, Contact,
-  // and Privacy Policy pages.
+  // Remove it from all other pages, including Terms of Service.
 
   return html
     .replace(
@@ -177,3 +181,5 @@ for (const route of routes) {
 console.log(
   "Route-specific SEO HTML generation complete."
 );
+
+

@@ -1,8 +1,10 @@
+
 import React from "react";
 import { AlertCircle } from "lucide-react";
 
 const policies = [
-  "Cancellations made 24 hours in advance will incur a $25 cancellation fee.",
+  "Payment is required before the blood draw appointment.",
+  "Cancellations made before the calendar day of the scheduled appointment are eligible for a refund minus a $25 cancellation fee.",
   "Same-day cancellations are non-refundable.",
   "We appreciate your understanding and cooperation.",
 ];
