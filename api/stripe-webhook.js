@@ -1,4 +1,4 @@
-import { stripe, transaction } from '../server/services.mjs';
+import { stripe, stripeMode, transaction } from '../server/services.mjs';
 export const config={api:{bodyParser:false}};
 export function createWebhookHandler({stripeClient=stripe,runTransaction=transaction}={}){
  return async function handler(req,res){
@@ -10,7 +10,7 @@ export function createWebhookHandler({stripeClient=stripe,runTransaction=transac
   const seen=await c.query('INSERT INTO payment_events(id) VALUES($1) ON CONFLICT DO NOTHING RETURNING id',[event.id]);if(!seen.rowCount)return;
   const o=event.data.object;
   const s=stripeClient();
-  if(event.livemode !== process.env.STRIPE_SECRET_KEY?.trim().startsWith('sk_live_')) throw new Error('Wrong mode');
+  if(event.livemode !== (stripeMode()==='live')) throw new Error('Wrong mode');
   if(['checkout.session.completed','checkout.session.async_payment_succeeded','checkout.session.expired'].includes(event.type)){
    const {rows}=await c.query('SELECT * FROM payment_bookings WHERE checkout_id=$1 FOR UPDATE',[o.id]);const r=rows[0];if(!r){if(o.metadata?.booking_id) throw new Error('Booking not yet linked');return;}
    if(event.type==='checkout.session.expired'){if(r.status==='pending')await c.query("UPDATE payment_bookings SET status='expired' WHERE id=$1",[r.id]);return;}

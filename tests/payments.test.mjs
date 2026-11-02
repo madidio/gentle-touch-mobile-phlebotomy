@@ -54,3 +54,16 @@ for(const version of ['2024-06-20','2026-03-25.dahlia']) {
   });
  }
 }
+
+import {stripe as configuredStripe,stripeMode} from '../server/services.mjs';
+test('server keys accept restricted and secret formats, fail closed, and never disclose values',()=>{
+ const saved={key:process.env.STRIPE_SECRET_KEY,live:process.env.PAYMENTS_LIVE_ENABLED,env:process.env.VERCEL_ENV};
+ try{
+  process.env.PAYMENTS_LIVE_ENABLED='true';process.env.VERCEL_ENV='production';
+  for(const prefix of ['sk_live_','rk_live_']){process.env.STRIPE_SECRET_KEY=`  ${prefix}private_fixture  `;assert.equal(stripeMode(),'live');assert.ok(configuredStripe());}
+  for(const [key,message] of [['pk_live_private_fixture','publishable'],['whsec_private_fixture','webhook'],['sk_test_private_fixture','Production requires'],['"sk_live_private_fixture"','unsupported']]){
+   process.env.STRIPE_SECRET_KEY=key;assert.throws(()=>configuredStripe(),e=>e.status===503&&e.message.includes(message)&&!e.message.includes('private_fixture'));
+  }
+  process.env.STRIPE_SECRET_KEY='rk_live_private_fixture';process.env.PAYMENTS_LIVE_ENABLED='false';assert.throws(()=>configuredStripe(),/Live Stripe processing is disabled/);
+ }finally{for(const [k,v] of Object.entries({STRIPE_SECRET_KEY:saved.key,PAYMENTS_LIVE_ENABLED:saved.live,VERCEL_ENV:saved.env})){if(v===undefined)delete process.env[k];else process.env[k]=v;}}
+});

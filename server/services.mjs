@@ -4,9 +4,22 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import { price } from './pricing.mjs';
 let pool;
 export const db = () => pool ||= new pg.Pool({connectionString:process.env.DATABASE_URL, max:3, ssl:process.env.PG_SSL === 'disable' ? false : {rejectUnauthorized:true}});
+export function stripeMode(key=process.env.STRIPE_SECRET_KEY) {
+ const value=key?.trim()||'';
+ if (/^(sk|rk)_live_/.test(value)) return 'live';
+ if (/^(sk|rk)_test_/.test(value)) return 'test';
+ return null;
+}
 export function stripe() {
  const key=process.env.STRIPE_SECRET_KEY?.trim();
- if (!key?.startsWith('sk_test_') && !(process.env.PAYMENTS_LIVE_ENABLED==='true' && key?.startsWith('sk_live_'))) throw Object.assign(new Error('Stripe is not configured with a test secret key beginning sk_test_.'),{status:503});
+ const mode=stripeMode(key);
+ const invalid=message=>{throw Object.assign(new Error(message),{status:503});};
+ if(!key) invalid('STRIPE_SECRET_KEY is missing in this deployment.');
+ if(key.startsWith('pk_')) invalid('STRIPE_SECRET_KEY contains a publishable key. Use a server secret or restricted key.');
+ if(key.startsWith('whsec_')) invalid('STRIPE_SECRET_KEY contains a webhook signing secret. Save that under STRIPE_WEBHOOK_SECRET instead.');
+ if(!mode) invalid('STRIPE_SECRET_KEY has an unsupported format. Paste only the secret or restricted API key value, without quotes or a variable-name prefix.');
+ if(mode==='live' && process.env.PAYMENTS_LIVE_ENABLED!=='true') invalid('Live Stripe processing is disabled in this deployment.');
+ if(process.env.VERCEL_ENV==='production' && mode!=='live') invalid('Production requires a live Stripe secret or restricted key; a test key is configured.');
  return new Stripe(key, {apiVersion:'2024-06-20', timeout:15000, maxNetworkRetries:2});
 }
 export const hash = s => createHash('sha256').update(s).digest('hex');
@@ -26,7 +39,7 @@ export async function routePrice(address) {
  if(!r.ok || !data.routes?.length) {
   const reason = data.error?.details?.find(x => typeof x.reason === 'string')?.reason;
   const messages = {
-   API_KEY_INVALID: 'The Google Routes key is invalid. Check the Preview credential.',
+   API_KEY_INVALID: 'The Google Routes key is invalid. Check GOOGLE_ROUTES_API_KEY for this deployment.',
    SERVICE_DISABLED: 'Google Routes API is not enabled in the Google Cloud project.',
    BILLING_DISABLED: 'Google Cloud billing must be enabled for Routes API.',
    API_KEY_SERVICE_BLOCKED: 'The Google key restrictions must allow Routes API.',
