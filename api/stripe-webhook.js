@@ -1,15 +1,16 @@
 import { stripe, transaction } from '../server/services.mjs';
 export const config={api:{bodyParser:false}};
-export default async function handler(req,res){
+export function createWebhookHandler({stripeClient=stripe,runTransaction=transaction}={}){
+ return async function handler(req,res){
  if(req.method!=='POST') return res.status(405).end();
  let event;
- try {const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>1024*1024) throw new Error('Too large');chunks.push(chunk);}event=stripe().webhooks.constructEvent(Buffer.concat(chunks),req.headers['stripe-signature'],process.env.STRIPE_WEBHOOK_SECRET);}catch{return res.status(400).json({error:'Invalid webhook signature'});}
+ try {const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>1024*1024) throw new Error('Too large');chunks.push(chunk);}event=stripeClient().webhooks.constructEvent(Buffer.concat(chunks),req.headers['stripe-signature'],process.env.STRIPE_WEBHOOK_SECRET);}catch{return res.status(400).json({error:'Invalid webhook signature'});}
  try {
- await transaction(async c=>{
+ await runTransaction(async c=>{
   const seen=await c.query('INSERT INTO payment_events(id) VALUES($1) ON CONFLICT DO NOTHING RETURNING id',[event.id]);if(!seen.rowCount)return;
   const o=event.data.object;
-  const s=stripe();
-  if(event.livemode !== process.env.STRIPE_SECRET_KEY.startsWith('sk_live_')) throw new Error('Wrong mode');
+  const s=stripeClient();
+  if(event.livemode !== process.env.STRIPE_SECRET_KEY?.trim().startsWith('sk_live_')) throw new Error('Wrong mode');
   if(['checkout.session.completed','checkout.session.async_payment_succeeded','checkout.session.expired'].includes(event.type)){
    const {rows}=await c.query('SELECT * FROM payment_bookings WHERE checkout_id=$1 FOR UPDATE',[o.id]);const r=rows[0];if(!r){if(o.metadata?.booking_id) throw new Error('Booking not yet linked');return;}
    if(event.type==='checkout.session.expired'){if(r.status==='pending')await c.query("UPDATE payment_bookings SET status='expired' WHERE id=$1",[r.id]);return;}
@@ -32,3 +33,6 @@ export default async function handler(req,res){
  });return res.json({received:true});
  }catch{return res.status(500).json({error:'Webhook processing failed; retry required'});}
 }
+
+}
+export default createWebhookHandler();
