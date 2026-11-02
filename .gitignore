@@ -34,3 +34,6 @@ dist-ssr
 
 .vercel
 .env*
+
+# Safe configuration template
+!.env.example

@@ -5,6 +5,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "@/pages/Home";
 import ScrollToTop from "@/components/ScrollToTop";
 
+const PaymentsAdmin = lazy(() => import("@/pages/PaymentsAdmin"));
+const PaymentResult = lazy(() => import("@/pages/PaymentResult"));
 const About = lazy(() => import("@/pages/About"));
 const Services = lazy(() => import("@/pages/Services"));
 const Providers = lazy(() => import("@/pages/Providers"));
@@ -27,6 +29,8 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/admin/payments" element={<PaymentsAdmin />} />
+          <Route path="/payment-result" element={<PaymentResult />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Suspense>
