@@ -10,6 +10,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 
+import { paymentsEnabled, paymentApi } from "@/lib/payments";
+
 const FORMSPREE_ENDPOINT =
   import.meta.env.VITE_FORMSPREE_ENDPOINT ||
   "https://formspree.io/f/xgogzqep";
@@ -61,6 +63,17 @@ export default function BookingSection() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
+  const [quote, setQuote] = useState(null);
+  const [slots, setSlots] = useState([]);
+  const requestRef = useRef(null);
+  useEffect(() => {
+    if (paymentsEnabled) paymentApi('availability').then(x=>setSlots(x.slots)).catch(e=>setError(e.message));
+  }, []);
+  const checkout = async () => {
+    setSubmitting(true); setError('');
+    try { const result=await paymentApi('checkout', {...requestRef.current,id:quote.id}); window.location.assign(result.url); }
+    catch(e){setError(e.message);setSubmitting(false);}
+  };
   const statusRef = useRef(null);
   const minimumDate = getTodayString();
 
@@ -73,6 +86,7 @@ export default function BookingSection() {
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
 
+    setQuote(null); requestRef.current=null;
     setForm((previousForm) => ({
       ...previousForm,
       [name]: type === "checkbox" ? checked : value,
@@ -92,6 +106,13 @@ export default function BookingSection() {
     setError("");
 
     try {
+      if (!form.cancellation_acknowledged) throw new Error('Please agree to the policies.');
+      if (paymentsEnabled) {
+        if (!requestRef.current) requestRef.current = {requestKey:crypto.randomUUID(),token:crypto.randomUUID()+crypto.randomUUID()};
+        const result=await paymentApi('quote',{form,...requestRef.current});
+        sessionStorage.setItem('gentle-touch-payment',JSON.stringify({...requestRef.current,id:result.id}));
+        setQuote(result); return;
+      }
       const response = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
         headers: {
@@ -164,9 +185,7 @@ export default function BookingSection() {
               </h2>
 
               <p className="mt-3 text-base leading-relaxed text-foreground/70">
-                Complete the form below and we will contact you to review
-                availability and confirm your appointment request. Submitting
-                this form does not create a confirmed appointment.
+                {paymentsEnabled ? "Choose an available window, review your itemized total, and pay securely to confirm your appointment." : "Complete the form below and we will contact you to review availability and confirm your appointment request. Submitting this form does not create a confirmed appointment."}
               </p>
 
               <div className="mt-3 text-sm leading-relaxed text-foreground/70">
@@ -351,6 +370,7 @@ export default function BookingSection() {
                         type="date"
                         required
                         min={minimumDate}
+                        max={paymentsEnabled ? slots.at(-1)?.day : undefined}
                         value={form.preferred_date}
                         onChange={handleChange}
                         className={inputClass}
@@ -377,16 +397,16 @@ export default function BookingSection() {
                         className={inputClass}
                       >
                         <option value="">Select a time</option>
-                        <option value="Morning (6am-9am)">
+                        <option disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window==="Morning (6am-9am)")} value="Morning (6am-9am)">
                           Morning (6am–9am)
                         </option>
-                        <option value="Midday (9am-12pm)">
+                        <option disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window==="Midday (9am-12pm)")} value="Midday (9am-12pm)">
                           Midday (9am–12pm)
                         </option>
-                        <option value="Afternoon (1pm-4pm)">
+                        <option disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window==="Afternoon (1pm-4pm)")} value="Afternoon (1pm-4pm)">
                           Afternoon (1pm–4pm)
                         </option>
-                        <option value="Evening (4pm-6pm)">
+                        <option disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window==="Evening (4pm-6pm)")} value="Evening (4pm-6pm)">
                           Evening (4pm–6pm)
                         </option>
                       </select>
@@ -500,10 +520,7 @@ export default function BookingSection() {
                       />
 
                       <span className="text-sm leading-relaxed text-foreground/70">
-                        I acknowledge the cancellation policy. Cancellations
-                        made less than 24 hours before an appointment may incur
-                        a $25 fee. Same-day cancellations may be
-                        non-refundable.{" "}
+                        I have read and agree to the <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="underline">Terms of Service</a> and <a href="/services" target="_blank" rel="noopener noreferrer" className="underline">Cancellation &amp; Refund Policy</a>. Cancellations before the appointment calendar day (Omaha time): refund minus $25. Same-day cancellations are nonrefundable, subject to applicable law and exceptions. Eligible refunds use the original payment method.{" "}
                         <span
                           className="text-destructive"
                           aria-hidden="true"
@@ -541,6 +558,13 @@ export default function BookingSection() {
                     </div>
                   )}
 
+                  {quote && <div role="status" className="rounded-lg border border-border bg-white p-4 space-y-2">
+                    <p>One-way driving distance: {quote.miles.toFixed(2)} miles (first 25 included)</p>
+                    <p>Collection: $80.00</p><p>Travel: ${(quote.travel/100).toFixed(2)}</p>
+                    <p className="font-semibold">Total due now: ${(quote.total/100).toFixed(2)}</p>
+                    <button type="button" disabled={submitting} onClick={checkout} className="rounded-lg bg-secondary px-6 py-3 text-white disabled:opacity-60">Pay in full with Stripe</button>
+                    <p className="text-sm">Your window is reserved when checkout starts. Already received an invoice? Use its payment link; contact us before creating another request.</p>
+                  </div>}
                   <button
                     type="submit"
                     disabled={submitting}
@@ -555,7 +579,7 @@ export default function BookingSection() {
                         Submitting request...
                       </>
                     ) : (
-                      "Request My Appointment"
+                      paymentsEnabled ? "Calculate Total" : "Request My Appointment"
                     )}
                   </button>
                 </form>
