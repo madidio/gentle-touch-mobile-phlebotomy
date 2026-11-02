@@ -89,7 +89,7 @@ export default async function handler(req,res) {
   });
   return res.json(result);
  } catch(e) {
-  if(e.type==='StripeAuthenticationError') return res.status(503).json({error:'Stripe rejected the test secret key. Check STRIPE_SECRET_KEY in Preview.'});
+  if(e.type==='StripeAuthenticationError') return res.status(503).json({error:'Stripe rejected the API key. Check STRIPE_SECRET_KEY for this deployment.'});
   if(e.type==='StripeInvalidRequestError') return res.status(502).json({error:`Stripe rejected a payment setting (${e.param||e.code||'unknown parameter'}). Contact us before trying another payment.`});
   console.error('Payment request failed', {type:e.type||e.name,code:e.code,status:e.status});
   const status=e.code==='23505'?409:e.status||500;return res.status(status).json({error:status===500?'Payment service unavailable. Please retry or contact us.':e.code==='23505'?'This appointment window is already reserved.':e.message});}
