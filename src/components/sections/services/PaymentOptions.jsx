@@ -1,6 +1,8 @@
 import React from "react";
 import { CreditCard, Smartphone } from "lucide-react";
 
+import { paymentsEnabled } from "@/lib/payments";
+
 export default function PaymentOptions() {
   return (
     <section className="w-full bg-white py-16 sm:py-20">
@@ -31,7 +33,7 @@ export default function PaymentOptions() {
             </p>
 
             <a
-              href="https://buy.stripe.com/aFa00j65dcLq98w9YPfQI03"
+              href={paymentsEnabled ? "/#book" : "https://buy.stripe.com/aFa00j65dcLq98w9YPfQI03"}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-secondary px-6 py-3 text-base font-semibold text-white shadow-gt transition-all hover:scale-[1.02] hover:bg-primary"
@@ -52,7 +54,7 @@ export default function PaymentOptions() {
             </h3>
 
             <p className="mt-2 text-sm text-foreground/60">
-              Quick and easy payments directly from the Venmo app. Scan the QR
+              For an existing invoice, use its payment link. Contact us before paying through Venmo so we can reconcile your appointment. Scan the QR
               code or find us at{" "}
               <span className="font-semibold text-secondary">
                 @gentletouchlabs27
@@ -61,13 +63,13 @@ export default function PaymentOptions() {
             </p>
 
             <a
-              href="https://www.venmo.com/u/gentletouchlabs27"
+              href={paymentsEnabled ? "tel:+14022125964" : "https://www.venmo.com/u/gentletouchlabs27"}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white shadow-gt transition-all hover:scale-[1.02] hover:bg-secondary"
             >
               <Smartphone className="h-5 w-5" />
-              Pay with Venmo
+              {paymentsEnabled ? "Contact Us About Venmo" : "Pay with Venmo"}
             </a>
           </div>
         </div>
