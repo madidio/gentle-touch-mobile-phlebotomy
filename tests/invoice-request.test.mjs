@@ -40,3 +40,30 @@ for(const blocked of [false,true]) test(`reviewed invoice request older than 30 
  assert.equal(sent,!blocked);assert.equal(r.code,blocked?409:200);
  }finally{if(old===undefined)delete process.env.PAYMENTS_ENABLED;else process.env.PAYMENTS_ENABLED=old;}
 });
+for(const scenario of [
+ {name:'one-hour quote accepted',age:3600000},
+ {name:'exactly 24 hours accepted',age:86400000},
+ {name:'over 24 hours rejected',age:86400001,expired:true},
+ {name:'valid quote cannot book a blocked window',age:3600000,blocked:true},
+ {name:'valid quote cannot book an occupied window',age:3600000,reserved:true},
+]) test(scenario.name,async()=>{
+ const old=process.env.PAYMENTS_ENABLED;process.env.PAYMENTS_ENABLED='true';
+ const originalNow=Date.now;const now=originalNow();Date.now=()=>now;
+ try{
+ let stripeCalled=false;
+ const row={id,appointment_day:day,time_window:form.preferred_time,payload:form,status:'quoted',channel:null,created_at:new Date(now-scenario.age),token_hash:'fixture',travel:0};
+ const c={query:async sql=>{
+  if(sql.startsWith('SELECT *,to_char'))return {rows:[row]};
+  if(sql.startsWith('SELECT start_minute'))return {rows:[{start_minute:360,end_minute:540}]};
+  if(sql.startsWith('SELECT 1 FROM payment_schedule_blocks'))return {rowCount:scenario.blocked?1:0};
+  if(sql.startsWith('SELECT 1 FROM payment_bookings b'))return {rowCount:scenario.reserved?1:0};
+  return {rows:[],rowCount:0};
+ }};
+ const h=createPaymentHandler({hash:()=> 'fixture',transaction:fn=>fn(c),stripe:()=>{stripeCalled=true;return {checkout:{sessions:{create:async()=>({id:'cs_fixture',status:'open',url:'https://example.invalid/checkout'})}}};}});
+ const oldUrl=process.env.APP_URL;process.env.APP_URL='https://example.invalid';
+ const r=response();try{await h({method:'POST',headers:{},query:{action:'checkout'},body:{id,token:'fixture'}},r);}finally{if(oldUrl===undefined)delete process.env.APP_URL;else process.env.APP_URL=oldUrl;}
+ const rejected=!!(scenario.expired||scenario.blocked||scenario.reserved);
+ assert.equal(r.code,rejected?409:200);assert.equal(stripeCalled,!rejected);
+ if(scenario.expired)assert.match(r.data.error,/Quote expired/);
+ }finally{Date.now=originalNow;if(old===undefined)delete process.env.PAYMENTS_ENABLED;else process.env.PAYMENTS_ENABLED=old;}
+});

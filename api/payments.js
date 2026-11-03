@@ -85,7 +85,7 @@ export function createPaymentHandler(overrides={}) {
    if(!['quoted','pending'].includes(r.status)) fail('This appointment cannot be charged again.');
    if(r.appointment_day<=chicagoDay()) fail('This appointment date is no longer available.');
    if(r.channel && r.channel!==a) fail('An existing payment request already exists. Use that payment request.');
-   if(!r.channel && !(a==='invoice' && r.payload.invoice_requested===true) && Date.now()-new Date(r.created_at).getTime()>30*60*1000) fail('Quote expired. Please request a new quote.');
+   if(!r.channel && !(a==='invoice' && r.payload.invoice_requested===true) && Date.now()-new Date(r.created_at).getTime()>24*60*60*1000) fail('Quote expired. Please request a new quote.');
    // All windows on a day share this lock, including legacy overlapping labels and admin blocks.
    await c.query('SELECT pg_advisory_xact_lock(hashtext($1))',[r.appointment_day]);
    const selected=await c.query('SELECT start_minute,end_minute FROM payment_slots WHERE day=$1 AND time_window=$2',[r.appointment_day,r.time_window]);

@@ -567,7 +567,7 @@ export default function BookingSection() {
                     <p>Collection: $80.00</p><p>Travel: ${(quote.travel/100).toFixed(2)}</p>
                     <p className="font-semibold">Total due now: ${(quote.total/100).toFixed(2)}</p>
                     <button type="button" disabled={submitting} onClick={checkout} className="rounded-lg bg-secondary px-6 py-3 text-white disabled:opacity-60">Pay in full with Stripe</button>
-                    <p className="text-sm">Your window is reserved when checkout starts. Already received an invoice? Use its payment link; contact us before creating another request.</p>
+                    <p className="text-sm">Your quote is valid for 24 hours, subject to appointment availability. Your window is reserved when checkout starts. Already received an invoice? Use its payment link; contact us before creating another request.</p>
                   </div>}
                   <button
                     type="submit"
