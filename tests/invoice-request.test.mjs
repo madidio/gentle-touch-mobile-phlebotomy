@@ -7,7 +7,7 @@ function response(){return {code:200,setHeader(){},status(n){this.code=n;return 
 const id='00000000-0000-4000-8000-000000000001';
 let day=addDays(chicagoDay(),1);while(!windowsForDay(day).length) day=addDays(day,1);
 const form={first_name:'Test',last_name:'Patient',email:'test@example.invalid',phone:'4025550100',draw_address:'Test address',preferred_date:day,preferred_time:windowsForDay(day)[0],cancellation_acknowledged:true};
-test('invoice request atomically reserves a hold without charging; retries reuse it',async()=>{
+for(const [drawType,expected] of [['Standard',8000],['Stat',12000],['Fasting',8000]]) test(`${drawType} invoice request reserves hold with correct price; retries reuse it`,async()=>{
  const old=process.env.PAYMENTS_ENABLED;process.env.PAYMENTS_ENABLED='true';
  try {
  let saved;let insertions=0;
@@ -20,16 +20,16 @@ test('invoice request atomically reserves a hold without charging; retries reuse
   return {rows:[],rowCount:0};
  }};
  const h=createPaymentHandler({db:()=>client,transaction:fn=>fn(client),routePrice:async()=>({distanceMeters:1000,total:8000,travel:0}),stripe:()=>{throw Error('Must not contact Stripe');}});
- const req={method:'POST',headers:{},query:{action:'request_invoice'},body:{form,requestKey:id,token:'x'.repeat(64)}};
- const r=response();await h(req,r);assert.equal(r.code,200);assert.equal(saved.payload.invoice_requested,true);assert.equal(r.data.status,'pending');assert.ok(saved.payload.email_alerts.requested.queued_at);assert.ok(saved.payload.hold_expires_at);assert.equal(saved.payload.hold_expires_at,r.data.holdExpiresAt);
- const retry=response();await h(req,retry);assert.equal(retry.data.id,r.data.id);assert.equal(insertions,1);
+ const req={method:'POST',headers:{},query:{action:'request_invoice'},body:{form:{...form,draw_type:drawType},requestKey:id,token:'x'.repeat(64)}};
+ const r=response();await h(req,r);assert.equal(r.code,200);assert.equal(r.data.collection,expected);assert.equal(r.data.total,expected);assert.equal(saved.total,expected);assert.equal(saved.payload.invoice_requested,true);assert.equal(r.data.status,'pending');assert.ok(saved.payload.email_alerts.requested.queued_at);assert.ok(saved.payload.hold_expires_at);assert.equal(saved.payload.hold_expires_at,r.data.holdExpiresAt);
+ const retry=response();await h(req,retry);assert.equal(retry.data.id,r.data.id);assert.equal(retry.data.collection,expected);assert.equal(insertions,1);
  }finally{if(old===undefined)delete process.env.PAYMENTS_ENABLED;else process.env.PAYMENTS_ENABLED=old;}
 });
 for(const blocked of [false,true]) test(`reviewed invoice request older than 30 minutes: ${blocked?'blocked window rejected':'invoice can be sent'}`,async()=>{
  const old=process.env.PAYMENTS_ENABLED;process.env.PAYMENTS_ENABLED='true';
  try{
  let sent=false;
- const row={id,appointment_day:day,time_window:form.preferred_time,payload:{...form,invoice_requested:true},status:'quoted',channel:null,created_at:new Date(Date.now()-86400000),customer_id:'cus_fixture',invoice_id:'in_fixture',travel:0};
+ const row={id,appointment_day:day,time_window:form.preferred_time,payload:{...form,invoice_requested:true},status:'quoted',channel:null,created_at:new Date(Date.now()-86400000),customer_id:'cus_fixture',invoice_id:'in_fixture',total:8000,travel:0};
  const c={query:async(sql)=>{
   if(sql.startsWith('SELECT *,to_char'))return {rows:[row]};
   if(sql.startsWith('SELECT start_minute'))return {rows:[{start_minute:360,end_minute:540}]};
@@ -52,7 +52,7 @@ for(const scenario of [
  const originalNow=Date.now;const now=originalNow();Date.now=()=>now;
  try{
  let stripeCalled=false;
- const row={id,appointment_day:day,time_window:form.preferred_time,payload:form,status:'quoted',channel:null,created_at:new Date(now-scenario.age),token_hash:'fixture',travel:0};
+ const row={id,appointment_day:day,time_window:form.preferred_time,payload:form,status:'quoted',channel:null,created_at:new Date(now-scenario.age),token_hash:'fixture',total:8000,travel:0};
  const c={query:async sql=>{
   if(sql.startsWith('SELECT *,to_char'))return {rows:[row]};
   if(sql.startsWith('SELECT start_minute'))return {rows:[{start_minute:360,end_minute:540}]};
@@ -77,7 +77,7 @@ for(const scenario of [
  const old=process.env.PAYMENTS_ENABLED;process.env.PAYMENTS_ENABLED='true';
  try{
  let sent=false,cancelled=false;
- const row={id,appointment_day:day,time_window:form.preferred_time,payload:{...form,invoice_requested:true,hold_expires_at:new Date(Date.now()-scenario.age).toISOString()},status:'pending',channel:null,created_at:new Date(),token_hash:'fixture',customer_id:'cus_fixture',invoice_id:'in_fixture',travel:0};
+ const row={id,appointment_day:day,time_window:form.preferred_time,payload:{...form,invoice_requested:true,hold_expires_at:new Date(Date.now()-scenario.age).toISOString()},status:'pending',channel:null,created_at:new Date(),token_hash:'fixture',customer_id:'cus_fixture',invoice_id:'in_fixture',total:8000,travel:0};
  const c={query:async sql=>{
   if(sql.startsWith('SELECT *,to_char'))return {rows:[row]};
   if(sql.startsWith('SELECT start_minute'))return {rows:[{start_minute:360,end_minute:540}]};
