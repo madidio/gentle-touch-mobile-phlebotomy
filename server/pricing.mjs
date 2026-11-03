@@ -1,5 +1,9 @@
 export const POLICY = 'Before the appointment calendar day (America/Chicago): refund minus $25. Same-day cancellations are nonrefundable, subject to applicable law and exceptions. Eligible refunds use the original payment method.';
 export const POLICY_VERSION = '2026-10-30';
+export function collectionFee(drawType = 'Standard') {
+  if (!['Standard', 'Stat', 'Fasting', 'Not sure'].includes(drawType)) throw Object.assign(new Error('Choose a valid draw type.'), {status:400});
+  return drawType === 'Stat' ? 12000 : 8000;
+}
 export function price(distanceMeters) {
   if (!Number.isSafeInteger(distanceMeters) || distanceMeters < 0) throw new Error('Invalid route distance');
   // Integer arithmetic: 1 mile = 1609.344 meters; $0.75 = 75 cents.

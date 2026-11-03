@@ -253,7 +253,7 @@ export default function BookingSection() {
                       <div><dt className="text-foreground/60">Arrival window · Omaha time</dt><dd className="font-medium">{timeWindowLabel(requestSummary.preferred_time)}</dd></div>
                       <div><dt className="text-foreground/60">Visit address</dt><dd className="break-words">{requestSummary.draw_address}</dd></div>
                       <div><dt className="text-foreground/60">Invoice will be sent to</dt><dd className="break-all">{requestSummary.email}</dd></div>
-                      <div className="border-t border-border pt-3"><dt>Blood draw: $80.00 · Travel: {money(requestSummary.travel)}</dt><dd className="mt-1 text-lg font-semibold text-primary">Total: {money(requestSummary.total)}</dd></div>
+                      <div className="border-t border-border pt-3"><dt>Blood draw: {money(requestSummary.total-requestSummary.travel)} · Travel: {money(requestSummary.travel)}</dt><dd className="mt-1 text-lg font-semibold text-primary">Total: {money(requestSummary.total)}</dd></div>
                     </dl>
                     <p className="mt-4 text-sm">Next: watch for your invoice email, check the details, and pay before your hold expires. Need to make a change? Call us using the numbers above.</p>
                   </div>}
@@ -281,7 +281,7 @@ export default function BookingSection() {
                         <span><span className="block font-semibold text-primary">{option.title}</span><span className="mt-1 block text-sm text-foreground/70">{option.description}</span></span>
                       </label>)}
                     </div>
-                    <p className="text-sm text-foreground/70">Blood draw: <strong>$80</strong>. Includes the first 25 one-way driving miles from our Omaha business location to your visit address. Additional miles are $0.75 each.</p>
+                    <p className="text-sm text-foreground/70">Blood draw: <strong>{form.draw_type==='Stat'?'$120':'$80'}</strong>. Includes the first 25 one-way driving miles from our Omaha business location to your visit address. Additional miles are $0.75 each.</p>
                     {bookingMethod==='invoice' && <p className="text-sm text-foreground/70">Your slot is held for up to 24 hours or until the window starts, whichever comes first. No payment is taken when you submit.</p>}
                   </fieldset>}
                   {/* Honeypot field */}
@@ -585,7 +585,7 @@ export default function BookingSection() {
                     <p>{formatDay(form.preferred_date)} · {timeWindowLabel(form.preferred_time)} · Omaha time</p>
                     <p className="break-words">{form.draw_address}</p>
                     <p>One-way driving distance: {quote.miles.toFixed(2)} miles (first 25 included)</p>
-                    <p>Collection: $80.00</p><p>Travel: ${(quote.travel/100).toFixed(2)}</p>
+                    <p>Collection: {money(quote.collection)}</p><p>Travel: ${(quote.travel/100).toFixed(2)}</p>
                     <p className="font-semibold">Total due now: ${(quote.total/100).toFixed(2)}</p>
                     <button type="button" disabled={submitting} onClick={checkout} className="rounded-lg bg-secondary px-6 py-3 text-white disabled:opacity-60">Pay in full with Stripe</button>
                     <p className="text-sm">Your quote is valid for 24 hours, subject to appointment availability. Your window is reserved when checkout starts. Already received an invoice? Use its payment link; contact us before creating another request.</p>

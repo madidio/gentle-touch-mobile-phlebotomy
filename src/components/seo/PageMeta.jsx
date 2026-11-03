@@ -40,7 +40,7 @@ export default function PageMeta({
       path === "/" ? `${SITE_URL}/` : `${SITE_URL}${path}`;
 
     const fullTitle = title
-      ? `${title} | ${SITE_NAME}`
+      ? (title.endsWith(` | ${SITE_NAME}`) ? title : `${title} | ${SITE_NAME}`)
       : `Mobile Phlebotomy in Omaha, NE | ${SITE_NAME}`;
 
     document.title = fullTitle;
