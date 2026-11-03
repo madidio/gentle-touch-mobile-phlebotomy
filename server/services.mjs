@@ -34,6 +34,8 @@ export async function transaction(fn) {
  catch(e){await c.query('ROLLBACK');throw e;} finally {c.release();}
 }
 export async function routePrice(address) {
+ const normalize=value=>String(value).toLowerCase().replace(/[^a-z0-9]/g,'');
+ if(normalize(address)===normalize('623 N 132nd St Omaha NE 68154'))return price(0);
  const r=await fetch('https://routes.googleapis.com/directions/v2:computeRoutes',{method:'POST',signal:AbortSignal.timeout(15000),headers:{'Content-Type':'application/json','X-Goog-Api-Key':process.env.GOOGLE_ROUTES_API_KEY?.trim(),'X-Goog-FieldMask':'routes.distanceMeters'},body:JSON.stringify({origin:{address:'623 N 132nd St, Omaha, NE 68154'},destination:{address},travelMode:'DRIVE',routingPreference:'TRAFFIC_UNAWARE',computeAlternativeRoutes:false,units:'IMPERIAL'})});
  const data=await r.json();
  if(!r.ok || !data.routes?.length) {
