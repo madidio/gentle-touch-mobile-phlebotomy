@@ -63,3 +63,12 @@ Production uses a separate empty database; do not copy synthetic test bookings i
 
 ## Snapshot compatibility validation
 Signed fixture tests cover legacy and Dahlia invoice.payment_succeeded payloads, including missing snapshot payment_intent, successful payment, wrong amounts, unpaid invoices, and duplicate delivery. These are mocked Stripe/database tests, not a new end-to-end Dahlia payment test. Retest a real Stripe sandbox invoice with the chosen webhook version before enabling production.
+
+## Recurring availability
+Apply migrations/002-recurring-availability.sql before deploying the scheduling change. It preserves bookings, backfills legacy window boundaries, expands the allowed window labels, and adds date/window blocks. No appointments or patient records are deleted. Availability rolls forward 90 days on server requests, from tomorrow in America/Chicago. Weekdays: 6–9, 9–12, 12–3, 3–6; Saturdays: 8–11, 11–2, 2–3; Sundays closed. Holidays are blocked explicitly by the administrator; no holiday calendar is assumed.
+
+Whole-day and individual-window blocks prevent new payment reservations. They do not cancel pending or paid appointments. Historical labels remain valid and block any overlapping new windows. Reservation and blocking actions share a transaction-level lock per calendar day; existing unique indexes remain in place. Public availability refreshes every minute, and the server rechecks availability when payment begins.
+
+Test the migration first in the synthetic test database. Run verifyAvailabilityDatabase from tests/availability-database.mjs with a pg client: it checks real SQL for idempotent generation, whole-day and window blocks, and legacy overlapping reservations, then rolls all synthetic changes back. A newly blocked date can still contain existing appointments; review the appointments list before arranging holiday closure.
+
+A database reservation trigger also enforces overlapping-window and date-block checks for older deployed API versions. Existing booked appointments are not cancelled by adding a block.
