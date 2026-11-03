@@ -54,22 +54,21 @@ export default function PaymentOptions() {
             </h3>
 
             <p className="mt-2 text-sm text-foreground/60">
-              For an existing invoice, use its payment link. Contact us before paying through Venmo so we can reconcile your appointment. Scan the QR
-              code or find us at{" "}
+              Confirm your appointment availability and total with us first. Then pay the agreed amount to{" "}
               <span className="font-semibold text-secondary">
                 @gentletouchlabs27
               </span>
-              .
+              . We verify Venmo payments before confirming your appointment. If you already have a Stripe invoice, use its payment link or contact us before changing payment methods. Please do not include medical details in your Venmo note.
             </p>
 
             <a
-              href={paymentsEnabled ? "tel:+14022125964" : "https://www.venmo.com/u/gentletouchlabs27"}
+              href="https://www.venmo.com/u/gentletouchlabs27"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-base font-semibold text-white shadow-gt transition-all hover:scale-[1.02] hover:bg-secondary"
             >
               <Smartphone className="h-5 w-5" />
-              {paymentsEnabled ? "Contact Us About Venmo" : "Pay with Venmo"}
+              Pay with Venmo
             </a>
           </div>
         </div>
