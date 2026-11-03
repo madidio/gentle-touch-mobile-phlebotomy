@@ -72,3 +72,11 @@ Whole-day and individual-window blocks prevent new payment reservations. They do
 Test the migration first in the synthetic test database. Run verifyAvailabilityDatabase from tests/availability-database.mjs with a pg client: it checks real SQL for idempotent generation, whole-day and window blocks, and legacy overlapping reservations, then rolls all synthetic changes back. A newly blocked date can still contain existing appointments; review the appointments list before arranging holiday closure.
 
 A database reservation trigger also enforces overlapping-window and date-block checks for older deployed API versions. Existing booked appointments are not cancelled by adding a block.
+
+## Invoice request holds
+
+New patient invoice requests reserve their selected window immediately as a pending booking. The hold deadline is the earlier of 24 hours after submission and the appointment window start in America/Chicago. Existing requests are not retroactively held.
+
+Patients see the deadline after submission. Administrators see it in Payments Admin and can release a hold using Cancel under policy. Sending an invoice preserves the original deadline. The existing database unique indexes and overlap trigger protect holds and paid bookings alike.
+
+Expired holds are reconciled during availability refreshes, new quote/request submissions, and administrator list loads (up to 20 per request). Availability refreshes every minute while the booking page is open; no separate scheduled job is required. A hold remains unavailable until reconciliation finishes. An attached unpaid invoice is voided before release; a paid invoice keeps its reservation for webhook confirmation. If Stripe cannot confirm closure, the reservation stays held.

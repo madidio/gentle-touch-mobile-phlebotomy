@@ -7,20 +7,21 @@ function response(){return {code:200,setHeader(){},status(n){this.code=n;return 
 const id='00000000-0000-4000-8000-000000000001';
 let day=addDays(chicagoDay(),1);while(!windowsForDay(day).length) day=addDays(day,1);
 const form={first_name:'Test',last_name:'Patient',email:'test@example.invalid',phone:'4025550100',draw_address:'Test address',preferred_date:day,preferred_time:windowsForDay(day)[0],cancellation_acknowledged:true};
-test('invoice request saves a reviewable quote without charging or reserving; retries reuse it',async()=>{
+test('invoice request atomically reserves a hold without charging; retries reuse it',async()=>{
  const old=process.env.PAYMENTS_ENABLED;process.env.PAYMENTS_ENABLED='true';
  try {
  let saved;let insertions=0;
  const client={query:async(sql,args)=>{
   if(sql.startsWith('INSERT INTO payment_rate_limits'))return {rows:[{hits:1}]};
+  if(sql.includes('FOR UPDATE SKIP LOCKED'))return {rows:[]};
   if(sql.startsWith('SELECT * FROM payment_bookings'))return {rows:saved?[saved]:[]};
   if(sql.startsWith('SELECT 1 FROM payment_slots'))return {rowCount:1};
-  if(sql.startsWith('INSERT INTO payment_bookings')){insertions++;saved={id:args[0],token_hash:args[1],payload:args[3],total:args[7],travel:args[8],distance_meters:1000,status:'quoted'};}
+  if(sql.startsWith('INSERT INTO payment_bookings')){insertions++;saved={id:args[0],token_hash:args[1],payload:args[3],total:args[7],travel:args[8],distance_meters:1000,status:args[10]};}
   return {rows:[],rowCount:0};
  }};
- const h=createPaymentHandler({db:()=>client,routePrice:async()=>({distanceMeters:1000,total:8000,travel:0}),stripe:()=>{throw Error('Must not contact Stripe');}});
+ const h=createPaymentHandler({db:()=>client,transaction:fn=>fn(client),routePrice:async()=>({distanceMeters:1000,total:8000,travel:0}),stripe:()=>{throw Error('Must not contact Stripe');}});
  const req={method:'POST',headers:{},query:{action:'request_invoice'},body:{form,requestKey:id,token:'x'.repeat(64)}};
- const r=response();await h(req,r);assert.equal(r.code,200);assert.equal(saved.payload.invoice_requested,true);assert.equal(r.data.status,'quoted');
+ const r=response();await h(req,r);assert.equal(r.code,200);assert.equal(saved.payload.invoice_requested,true);assert.equal(r.data.status,'pending');assert.ok(saved.payload.hold_expires_at);assert.equal(saved.payload.hold_expires_at,r.data.holdExpiresAt);
  const retry=response();await h(req,retry);assert.equal(retry.data.id,r.data.id);assert.equal(insertions,1);
  }finally{if(old===undefined)delete process.env.PAYMENTS_ENABLED;else process.env.PAYMENTS_ENABLED=old;}
 });
@@ -66,4 +67,25 @@ for(const scenario of [
  assert.equal(r.code,rejected?409:200);assert.equal(stripeCalled,!rejected);
  if(scenario.expired)assert.match(r.data.error,/Quote expired/);
  }finally{Date.now=originalNow;if(old===undefined)delete process.env.PAYMENTS_ENABLED;else process.env.PAYMENTS_ENABLED=old;}
+});
+for(const scenario of [
+ {name:'active held request can be invoiced',action:'invoice',age:-3600000,ok:true},
+ {name:'expired hold cannot be invoiced',action:'invoice',age:1,ok:false},
+ {name:'held request cannot switch to public checkout',action:'checkout',age:-3600000,ok:false},
+ {name:'administrator can release an unbilled hold',action:'cancel',age:-3600000,ok:true},
+])test(scenario.name,async()=>{
+ const old=process.env.PAYMENTS_ENABLED;process.env.PAYMENTS_ENABLED='true';
+ try{
+ let sent=false,cancelled=false;
+ const row={id,appointment_day:day,time_window:form.preferred_time,payload:{...form,invoice_requested:true,hold_expires_at:new Date(Date.now()-scenario.age).toISOString()},status:'pending',channel:null,created_at:new Date(),token_hash:'fixture',customer_id:'cus_fixture',invoice_id:'in_fixture',travel:0};
+ const c={query:async sql=>{
+  if(sql.startsWith('SELECT *,to_char'))return {rows:[row]};
+  if(sql.startsWith('SELECT start_minute'))return {rows:[{start_minute:360,end_minute:540}]};
+  if(sql.includes("SET status='cancelled'"))cancelled=true;
+  return {rows:[],rowCount:0};
+ }};
+ const h=createPaymentHandler({admin:()=>{},hash:()=> 'fixture',transaction:fn=>fn(c),stripe:()=>({invoices:{retrieve:async()=>({id:'in_fixture',status:'open'}),sendInvoice:async()=>{sent=true;}}})});
+ const r=response();await h({method:'POST',headers:{},query:{action:scenario.action},body:{id,token:'fixture'}},r);
+ assert.equal(r.code,scenario.ok?200:409);assert.equal(sent,scenario.ok&&scenario.action==='invoice');assert.equal(cancelled,scenario.action==='cancel');
+ }finally{if(old===undefined)delete process.env.PAYMENTS_ENABLED;else process.env.PAYMENTS_ENABLED=old;}
 });

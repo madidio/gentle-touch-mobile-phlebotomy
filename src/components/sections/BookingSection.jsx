@@ -67,6 +67,7 @@ export default function BookingSection() {
   const [error, setError] = useState("");
 
   const [quote, setQuote] = useState(null);
+  const [holdUntil,setHoldUntil]=useState(null);
   const [bookingMethod, setBookingMethod] = useState("online");
   const [slots, setSlots] = useState([]);
   const requestRef = useRef(null);
@@ -117,7 +118,8 @@ export default function BookingSection() {
       if (paymentsEnabled) {
         if (!requestRef.current) requestRef.current = {requestKey:crypto.randomUUID(),token:crypto.randomUUID()+crypto.randomUUID()};
         const result=await paymentApi(bookingMethod==='invoice' ? 'request_invoice' : 'quote',{form,...requestRef.current});
-        if(bookingMethod==='invoice'){setForm(initialForm);requestRef.current=null;setSuccess(true);return;}
+        if(bookingMethod==='invoice' && result.status!=='pending'){requestRef.current=null;throw new Error('This request is no longer active. Please submit a new request.');}
+        if(bookingMethod==='invoice'){setHoldUntil(result.holdExpiresAt);setForm(initialForm);requestRef.current=null;setSuccess(true);return;}
         sessionStorage.setItem('gentle-touch-payment',JSON.stringify({...requestRef.current,id:result.id}));
         setQuote(result); return;
       }
@@ -234,13 +236,15 @@ export default function BookingSection() {
                   </p>
 
                   <p className="mt-2 max-w-lg text-sm leading-relaxed text-foreground/70">
-                    {paymentsEnabled && bookingMethod==='invoice' ? "We will review your request and email an invoice with the draw fee and any mileage charge. No payment has been taken. Your window is not reserved yet; your appointment is confirmed after payment and availability verification." : "We will contact you to review availability and confirm the appointment details. Your appointment is not confirmed until you hear from us."}
+                    {paymentsEnabled && bookingMethod==='invoice' ? "We will review your request and email an invoice with the draw fee and any mileage charge. No payment has been taken. Your selected window is temporarily held while we review your request. Payment confirms your appointment." : "We will contact you to review availability and confirm the appointment details. Your appointment is not confirmed until you hear from us."}
                   </p>
 
+                  {holdUntil && <p className="mt-3 text-sm">Your hold expires {new Date(holdUntil).toLocaleString('en-US',{timeZone:'America/Chicago',dateStyle:'medium',timeStyle:'short'})} Omaha time. If unpaid, the window reopens after the invoice is closed.</p>}
                   <button
                     type="button"
                     onClick={() => {
                       setSuccess(false);
+                      setHoldUntil(null);
                       setError("");
                     }}
                     className="mt-6 rounded-md text-sm font-semibold text-secondary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-secondary/30"
@@ -254,7 +258,7 @@ export default function BookingSection() {
                     <legend className={labelClass}>How would you like to book?</legend>
                     <label className="flex items-center gap-3"><input type="radio" name="booking_method" value="online" checked={bookingMethod==='online'} onChange={()=>{setBookingMethod('online');setQuote(null);requestRef.current=null;}}/> Pay online to confirm</label>
                     <label className="flex items-center gap-3"><input type="radio" name="booking_method" value="invoice" checked={bookingMethod==='invoice'} onChange={()=>{setBookingMethod('invoice');setQuote(null);requestRef.current=null;}}/> Request appointment—receive an invoice</label>
-                    {bookingMethod==='invoice' && <p className="text-sm text-foreground/70">We will review your details and email an invoice before your visit. Collection is $80 plus $0.725 per one-way driving mile beyond 25 miles. Submitting a request does not reserve a window or take payment.</p>}
+                    {bookingMethod==='invoice' && <p className="text-sm text-foreground/70">We will review your details and email an invoice before your visit. Collection is $80 plus $0.725 per one-way driving mile beyond 25 miles. Your window is held for up to 24 hours or until it starts, whichever comes first. No payment is taken when you submit. Unpaid holds reopen after any invoice is closed.</p>}
                   </fieldset>}
                   {/* Honeypot field */}
                   <div className="hidden" aria-hidden="true">
