@@ -38,7 +38,7 @@ for(const version of ['2024-06-20','2026-03-25.dahlia']) {
     const handler=createWebhookHandler({stripeClient:()=>client,runTransaction:async fn=>fn({query:async(sql,args)=>{
      if(sql.startsWith('INSERT'))return {rowCount:scenario==='duplicate'?0:1};
      if(sql.startsWith('SELECT'))return {rows:[{id:'booking_fixture',total:8000,status:'pending'}]};
-     updates.push(args);return {rowCount:1};
+     assert.match(sql,/email_alerts/);updates.push(args);return {rowCount:1};
     }})});
     // Modern snapshots deliberately omit the removed invoice.payment_intent field.
     const payload=JSON.stringify({id:'evt_fixture',api_version:version,type:'invoice.payment_succeeded',livemode:false,data:{object:{id:'in_fixture',object:'invoice',metadata:{booking_id:'booking_fixture'},...(version==='2024-06-20'?{payment_intent:'pi_fixture'}:{payments:{data:[]}})}}});

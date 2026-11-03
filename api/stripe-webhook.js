@@ -1,6 +1,7 @@
+import {flushNotifications,paidNotificationSQL} from '../server/notifications.mjs';
 import { stripe, stripeMode, transaction } from '../server/services.mjs';
-export const config={api:{bodyParser:false}};
-export function createWebhookHandler({stripeClient=stripe,runTransaction=transaction}={}){
+export const config={api:{bodyParser:false},maxDuration:60};
+export function createWebhookHandler({stripeClient=stripe,runTransaction=transaction,flush=flushNotifications}={}){
  return async function handler(req,res){
  if(req.method!=='POST') return res.status(405).end();
  let event;
@@ -17,20 +18,20 @@ export function createWebhookHandler({stripeClient=stripe,runTransaction=transac
    if(o.payment_status!=='paid')return;
    const pi=await s.paymentIntents.retrieve(o.payment_intent);
    if(o.amount_total!==r.total||o.currency!=='usd'||pi.status!=='succeeded'||pi.amount_received!==r.total)throw new Error('Amount mismatch');
-   if(r.status==='pending')await c.query("UPDATE payment_bookings SET status='paid',paid_at=now(),payment_intent=$2 WHERE id=$1",[r.id,pi.id]);
+   if(r.status==='pending')await c.query(`UPDATE payment_bookings SET status='paid',paid_at=now(),payment_intent=$2,${paidNotificationSQL} WHERE id=$1`,[r.id,pi.id]);
   }
   if(event.type==='invoice.payment_succeeded'){
    const {rows}=await c.query('SELECT * FROM payment_bookings WHERE invoice_id=$1 FOR UPDATE',[o.id]);const r=rows[0];if(!r){if(o.metadata?.booking_id)throw new Error('Booking not yet linked');return;}
    const inv=await s.invoices.retrieve(o.id,{expand:['payment_intent']});const pi=inv.payment_intent;
    if(inv.status!=='paid'||inv.amount_paid!==r.total||inv.total!==r.total||inv.currency!=='usd'||!pi||pi.status!=='succeeded'||pi.amount_received!==r.total) throw new Error('Unverified invoice payment');
-   if(r.status==='pending') await c.query("UPDATE payment_bookings SET status='paid',paid_at=now(),payment_intent=$2 WHERE id=$1",[r.id,pi.id]);
+   if(r.status==='pending') await c.query(`UPDATE payment_bookings SET status='paid',paid_at=now(),payment_intent=$2,${paidNotificationSQL} WHERE id=$1`,[r.id,pi.id]);
   }
   if(event.type==='refund.updated'||event.type==='refund.failed'){
    const r=await c.query('SELECT id FROM payment_bookings WHERE refund_id=$1 FOR UPDATE',[o.id]);
    if(!r.rowCount && o.metadata?.booking_id) throw new Error('Refund not yet linked');
    if(r.rowCount){const current=await s.refunds.retrieve(o.id);await c.query("UPDATE payment_bookings SET status=$2 WHERE refund_id=$1",[o.id,current.status==='succeeded'?'refunded':current.status==='failed'||current.status==='canceled'?'refund_failed':'refund_pending']);}
   }
- });return res.json({received:true});
+ });await flush({transaction:runTransaction});return res.json({received:true});
  }catch{return res.status(500).json({error:'Webhook processing failed; retry required'});}
 }
 

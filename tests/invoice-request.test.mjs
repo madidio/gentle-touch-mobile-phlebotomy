@@ -21,7 +21,7 @@ test('invoice request atomically reserves a hold without charging; retries reuse
  }};
  const h=createPaymentHandler({db:()=>client,transaction:fn=>fn(client),routePrice:async()=>({distanceMeters:1000,total:8000,travel:0}),stripe:()=>{throw Error('Must not contact Stripe');}});
  const req={method:'POST',headers:{},query:{action:'request_invoice'},body:{form,requestKey:id,token:'x'.repeat(64)}};
- const r=response();await h(req,r);assert.equal(r.code,200);assert.equal(saved.payload.invoice_requested,true);assert.equal(r.data.status,'pending');assert.ok(saved.payload.hold_expires_at);assert.equal(saved.payload.hold_expires_at,r.data.holdExpiresAt);
+ const r=response();await h(req,r);assert.equal(r.code,200);assert.equal(saved.payload.invoice_requested,true);assert.equal(r.data.status,'pending');assert.ok(saved.payload.email_alerts.requested.queued_at);assert.ok(saved.payload.hold_expires_at);assert.equal(saved.payload.hold_expires_at,r.data.holdExpiresAt);
  const retry=response();await h(req,retry);assert.equal(retry.data.id,r.data.id);assert.equal(insertions,1);
  }finally{if(old===undefined)delete process.env.PAYMENTS_ENABLED;else process.env.PAYMENTS_ENABLED=old;}
 });
