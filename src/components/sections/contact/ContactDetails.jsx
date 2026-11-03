@@ -41,7 +41,7 @@ const details = [
     content: (
       <div className="font-semibold text-primary">
         <p>Mon-Fri 6am-6pm</p>
-        <p>Sat 8am-3:30pm</p>
+        <p>Sat 8am-3pm</p>
       </div>
     )
   },

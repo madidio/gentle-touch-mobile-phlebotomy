@@ -25,7 +25,7 @@ const faqs = [
   },
   {
     q: "Is there a travel fee?",
-    a: "A travel fee of $0.725 per mile applies to round-trip mileage beyond 25 miles from our base location.",
+    a: "A travel fee of $0.725 per additional mile applies to actual one-way driving mileage beyond the first 25 miles from our base location.",
   },
   {
     q: "What is your cancellation policy?",
