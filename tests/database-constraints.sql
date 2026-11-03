@@ -2,7 +2,7 @@ DO $test$
 DECLARE blocked_slot boolean := false; blocked_patient boolean := false;
 BEGIN
  BEGIN
-  INSERT INTO payment_slots(day,time_window) VALUES ('2099-12-30','Morning (6am-9am)'),('2099-12-30','Midday (9am-12pm)');
+  INSERT INTO payment_slots(day,time_window,start_minute,end_minute) VALUES ('2099-12-30','Morning (6am-9am)',360,540),('2099-12-30','Midday (9am-12pm)',540,720);
   INSERT INTO payment_bookings(id,token_hash,request_key,payload,day,time_window,distance_meters,total,travel,policy_version,status,channel)
   VALUES ('00000000-0000-4000-8000-000000000001','test-only','10000000-0000-4000-8000-000000000001','{"email":"synthetic-test@example.invalid"}','2099-12-30','Morning (6am-9am)',64374,9088,1088,'test','pending','checkout');
   BEGIN
