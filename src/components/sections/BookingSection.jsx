@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { paymentsEnabled, paymentApi } from "@/lib/payments";
+import {windowsForDay,addDays,BOOKING_DAYS} from "../../../shared/schedule.mjs";
 
 const FORMSPREE_ENDPOINT =
   import.meta.env.VITE_FORMSPREE_ENDPOINT ||
@@ -49,12 +50,9 @@ const inputClass =
 const labelClass = "mb-1.5 block text-sm font-semibold text-primary";
 
 function getTodayString() {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const part=type=>parts.find(p=>p.type===type).value;
+  return `${part('year')}-${part('month')}-${part('day')}`;
 }
 
 export default function BookingSection() {
@@ -67,7 +65,9 @@ export default function BookingSection() {
   const [slots, setSlots] = useState([]);
   const requestRef = useRef(null);
   useEffect(() => {
-    if (paymentsEnabled) paymentApi('availability').then(x=>setSlots(x.slots)).catch(e=>setError(e.message));
+    if (!paymentsEnabled) return;
+    const refresh=()=>paymentApi('availability').then(x=>setSlots(x.slots)).catch(e=>setError(e.message));
+    refresh();const timer=setInterval(refresh,60000);return ()=>clearInterval(timer);
   }, []);
   const checkout = async () => {
     setSubmitting(true); setError('');
@@ -75,7 +75,7 @@ export default function BookingSection() {
     catch(e){setError(e.message);setSubmitting(false);}
   };
   const statusRef = useRef(null);
-  const minimumDate = getTodayString();
+  const minimumDate = paymentsEnabled ? addDays(getTodayString(),1) : getTodayString();
 
   useEffect(() => {
     if ((success || error) && statusRef.current) {
@@ -90,6 +90,7 @@ export default function BookingSection() {
     setForm((previousForm) => ({
       ...previousForm,
       [name]: type === "checkbox" ? checked : value,
+      ...(name === "preferred_date" ? {preferred_time:""} : {}),
     }));
   };
 
@@ -370,7 +371,7 @@ export default function BookingSection() {
                         type="date"
                         required
                         min={minimumDate}
-                        max={paymentsEnabled ? slots.at(-1)?.day : undefined}
+                        max={paymentsEnabled ? addDays(getTodayString(),BOOKING_DAYS) : undefined}
                         value={form.preferred_date}
                         onChange={handleChange}
                         className={inputClass}
@@ -397,19 +398,10 @@ export default function BookingSection() {
                         className={inputClass}
                       >
                         <option value="">Select a time</option>
-                        <option disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window==="Morning (6am-9am)")} value="Morning (6am-9am)">
-                          Morning (6am–9am)
-                        </option>
-                        <option disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window==="Midday (9am-12pm)")} value="Midday (9am-12pm)">
-                          Midday (9am–12pm)
-                        </option>
-                        <option disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window==="Afternoon (1pm-4pm)")} value="Afternoon (1pm-4pm)">
-                          Afternoon (1pm–4pm)
-                        </option>
-                        <option disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window==="Evening (4pm-6pm)")} value="Evening (4pm-6pm)">
-                          Evening (4pm–6pm)
-                        </option>
+                        {(paymentsEnabled ? windowsForDay(form.preferred_date) : ['Morning (6am-9am)','Midday (9am-12pm)','Afternoon (1pm-4pm)','Evening (4pm-6pm)']).map(window=><option key={window} value={window} disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window===window)}>{window}</option>)}
                       </select>
+                      {paymentsEnabled && <p className="mt-2 text-sm text-muted-foreground">All times are Omaha time. Monday–Friday 6 a.m.–6 p.m.; Saturday 8 a.m.–3 p.m.; closed Sunday. Booking opens from tomorrow through the next 90 days.</p>}
+                      {paymentsEnabled && form.preferred_date && !slots.some(s=>s.day===form.preferred_date) && <p role="status" className="mt-2 text-sm">No windows are available on this date. Please choose another date.</p>}
                     </div>
                   </div>
 
