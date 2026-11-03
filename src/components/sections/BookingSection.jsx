@@ -68,12 +68,14 @@ export default function BookingSection() {
 
   const [quote, setQuote] = useState(null);
   const [holdUntil,setHoldUntil]=useState(null);
+  const [requestSummary,setRequestSummary]=useState(null);
+  const [slotsLoading,setSlotsLoading]=useState(paymentsEnabled);
   const [bookingMethod, setBookingMethod] = useState("online");
   const [slots, setSlots] = useState([]);
   const requestRef = useRef(null);
   useEffect(() => {
     if (!paymentsEnabled) return;
-    const refresh=()=>paymentApi('availability').then(x=>setSlots(x.slots)).catch(e=>setError(e.message));
+    const refresh=()=>paymentApi('availability').then(x=>setSlots(x.slots)).catch(e=>setError(e.message)).finally(()=>setSlotsLoading(false));
     refresh();const timer=setInterval(refresh,60000);return ()=>clearInterval(timer);
   }, []);
   const checkout = async () => {
@@ -83,6 +85,10 @@ export default function BookingSection() {
   };
   const statusRef = useRef(null);
   const minimumDate = paymentsEnabled ? addDays(getTodayString(),1) : getTodayString();
+  const dayWindows = paymentsEnabled ? windowsForDay(form.preferred_date) : ['Morning (6am-9am)','Midday (9am-12pm)','Afternoon (1pm-4pm)','Evening (4pm-6pm)'];
+  const isWindowAvailable = window => !paymentsEnabled || slots.some(slot=>slot.day===form.preferred_date && slot.time_window===window);
+  const formatDay = day => new Intl.DateTimeFormat('en-US',{dateStyle:'full',timeZone:'America/Chicago'}).format(new Date(`${day}T12:00:00-06:00`));
+  const money = cents => `$${(cents/100).toFixed(2)}`;
 
   useEffect(() => {
     if ((success || error) && statusRef.current) {
@@ -114,12 +120,13 @@ export default function BookingSection() {
     setError("");
 
     try {
+      if(paymentsEnabled && (!form.preferred_time || !isWindowAvailable(form.preferred_time)))throw new Error('Please choose an available arrival window.');
       if (!form.cancellation_acknowledged) throw new Error('Please agree to the policies.');
       if (paymentsEnabled) {
         if (!requestRef.current) requestRef.current = {requestKey:crypto.randomUUID(),token:crypto.randomUUID()+crypto.randomUUID()};
         const result=await paymentApi(bookingMethod==='invoice' ? 'request_invoice' : 'quote',{form,...requestRef.current});
         if(bookingMethod==='invoice' && result.status!=='pending'){requestRef.current=null;throw new Error('This request is no longer active. Please submit a new request.');}
-        if(bookingMethod==='invoice'){setHoldUntil(result.holdExpiresAt);setForm(initialForm);requestRef.current=null;setSuccess(true);return;}
+        if(bookingMethod==='invoice'){setRequestSummary({...form,...result});setHoldUntil(result.holdExpiresAt);setForm(initialForm);requestRef.current=null;setSuccess(true);return;}
         sessionStorage.setItem('gentle-touch-payment',JSON.stringify({...requestRef.current,id:result.id}));
         setQuote(result); return;
       }
@@ -239,12 +246,24 @@ export default function BookingSection() {
                     {paymentsEnabled && bookingMethod==='invoice' ? "We will review your request and email an invoice with the draw fee and any mileage charge. No payment has been taken. Your selected window is temporarily held while we review your request. Payment confirms your appointment." : "We will contact you to review availability and confirm the appointment details. Your appointment is not confirmed until you hear from us."}
                   </p>
 
+                  {requestSummary && <div className="mt-5 w-full rounded-lg border border-border bg-white p-5 text-left">
+                    <h3 className="font-semibold text-primary">Your appointment request</h3>
+                    <dl className="mt-3 space-y-3 text-sm">
+                      <div><dt className="text-foreground/60">Date</dt><dd className="font-medium">{formatDay(requestSummary.preferred_date)}</dd></div>
+                      <div><dt className="text-foreground/60">Arrival window · Omaha time</dt><dd className="font-medium">{timeWindowLabel(requestSummary.preferred_time)}</dd></div>
+                      <div><dt className="text-foreground/60">Visit address</dt><dd className="break-words">{requestSummary.draw_address}</dd></div>
+                      <div><dt className="text-foreground/60">Invoice will be sent to</dt><dd className="break-all">{requestSummary.email}</dd></div>
+                      <div className="border-t border-border pt-3"><dt>Blood draw: $80.00 · Travel: {money(requestSummary.travel)}</dt><dd className="mt-1 text-lg font-semibold text-primary">Total: {money(requestSummary.total)}</dd></div>
+                    </dl>
+                    <p className="mt-4 text-sm">Next: watch for your invoice email, check the details, and pay before your hold expires. Need to make a change? Call us using the numbers above.</p>
+                  </div>}
                   {holdUntil && <p className="mt-3 text-sm">Your hold expires {new Date(holdUntil).toLocaleString('en-US',{timeZone:'America/Chicago',dateStyle:'medium',timeStyle:'short'})} Omaha time. If unpaid, the window reopens after the invoice is closed.</p>}
                   <button
                     type="button"
                     onClick={() => {
                       setSuccess(false);
                       setHoldUntil(null);
+                      setRequestSummary(null);
                       setError("");
                     }}
                     className="mt-6 rounded-md text-sm font-semibold text-secondary underline underline-offset-4 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-secondary/30"
@@ -254,11 +273,16 @@ export default function BookingSection() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-                  {paymentsEnabled && <fieldset className="rounded-lg border border-border bg-white p-4 space-y-3">
-                    <legend className={labelClass}>How would you like to book?</legend>
-                    <label className="flex items-center gap-3"><input type="radio" name="booking_method" value="online" checked={bookingMethod==='online'} onChange={()=>{setBookingMethod('online');setQuote(null);requestRef.current=null;}}/> Pay online to confirm</label>
-                    <label className="flex items-center gap-3"><input type="radio" name="booking_method" value="invoice" checked={bookingMethod==='invoice'} onChange={()=>{setBookingMethod('invoice');setQuote(null);requestRef.current=null;}}/> Request appointment—receive an invoice</label>
-                    {bookingMethod==='invoice' && <p className="text-sm text-foreground/70">We will review your details and email an invoice before your visit. Collection is $80 plus $0.725 per one-way driving mile beyond 25 miles. Your window is held for up to 24 hours or until it starts, whichever comes first. No payment is taken when you submit. Unpaid holds reopen after any invoice is closed.</p>}
+                  {paymentsEnabled && <fieldset className="space-y-3">
+                    <legend className={labelClass}>How would you like to pay?</legend>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {[{value:'online',title:'Pay now',description:'Review your total, then pay securely to confirm.'},{value:'invoice',title:'Request an invoice',description:'Submit your details. We will review and email your invoice.'}].map(option=><label key={option.value} className={`flex min-h-[88px] cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors focus-within:ring-2 focus-within:ring-primary/30 ${bookingMethod===option.value?'border-primary bg-primary/5':'border-border bg-white'}`}>
+                        <input className="mt-1 h-4 w-4 shrink-0 accent-primary" type="radio" name="booking_method" value={option.value} checked={bookingMethod===option.value} disabled={submitting} onChange={()=>{setBookingMethod(option.value);setQuote(null);requestRef.current=null;}}/>
+                        <span><span className="block font-semibold text-primary">{option.title}</span><span className="mt-1 block text-sm text-foreground/70">{option.description}</span></span>
+                      </label>)}
+                    </div>
+                    <p className="text-sm text-foreground/70">Blood draw: <strong>$80</strong>. The first 25 one-way driving miles are included; additional miles are $0.725 each. We calculate travel from your visit address.</p>
+                    {bookingMethod==='invoice' && <p className="text-sm text-foreground/70">Your slot is held for up to 24 hours or until the window starts, whichever comes first. No payment is taken when you submit.</p>}
                   </fieldset>}
                   {/* Honeypot field */}
                   <div className="hidden" aria-hidden="true">
@@ -394,31 +418,21 @@ export default function BookingSection() {
 
                     </div>
 
-                    <div>
-                      <label
-                        htmlFor="preferred_time"
-                        className={labelClass}
-                      >
-                        Preferred Time{" "}
-                        <span className="text-destructive" aria-hidden="true">
-                          *
-                        </span>
-                      </label>
-
-                      <select
-                        id="preferred_time"
-                        disabled={paymentsEnabled && !form.preferred_date}
-                        name="preferred_time"
-                        required
-                        value={form.preferred_time}
-                        onChange={handleChange}
-                        className={inputClass}
-                      >
-                        <option value="">Select a time</option>
-                        {(paymentsEnabled ? windowsForDay(form.preferred_date).filter(window=>slots.some(slot=>slot.day===form.preferred_date && slot.time_window===window)) : ['Morning (6am-9am)','Midday (9am-12pm)','Afternoon (1pm-4pm)','Evening (4pm-6pm)']).map(window=><option key={window} value={window} disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window===window)}>{timeWindowLabel(window)}</option>)}
-                      </select>
-                      {paymentsEnabled && form.preferred_date && !slots.some(s=>s.day===form.preferred_date) && <p role="status" className="mt-2 text-sm">No windows are available on this date. Please choose another date.</p>}
-                    </div>
+                    <fieldset disabled={submitting || (paymentsEnabled && (!form.preferred_date || slotsLoading))} aria-describedby="arrival-window-help">
+                      <legend className={labelClass}>Arrival window <span className="text-destructive" aria-hidden="true">*</span></legend>
+                      <p id="arrival-window-help" className="mb-3 text-sm text-foreground/70">{paymentsEnabled && !form.preferred_date ? 'Choose a date to see arrival windows.' : 'Choose when we can arrive. All windows use Omaha time.'}</p>
+                      {slotsLoading && form.preferred_date && <p role="status" className="text-sm">Loading available windows…</p>}
+                      <div className="grid grid-cols-2 gap-2">
+                        {dayWindows.map(window=>{
+                          const available=isWindowAvailable(window);
+                          return <label key={window} className={`relative flex min-h-[56px] items-center gap-2 rounded-lg border px-3 py-3 text-sm focus-within:ring-2 focus-within:ring-primary/30 ${!available?'cursor-not-allowed border-border bg-muted text-foreground/50':form.preferred_time===window?'cursor-pointer border-primary bg-primary/5 text-primary':'cursor-pointer border-border bg-white text-primary'}`}>
+                            <input type="radio" name="preferred_time" value={window} required checked={form.preferred_time===window} disabled={!available} onChange={handleChange} className="h-4 w-4 shrink-0 accent-primary"/>
+                            <span className="font-semibold">{timeWindowLabel(window).replace(/^.*\((.*)\)$/, '$1')}{!available && <span className="block text-xs font-normal">Unavailable</span>}</span>
+                          </label>;
+                        })}
+                      </div>
+                      {paymentsEnabled && form.preferred_date && !slotsLoading && !slots.some(slot=>slot.day===form.preferred_date) && <p role="status" className="mt-2 text-sm">No openings on this date. Please choose another date.</p>}
+                    </fieldset>
                   </div>
 
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -567,6 +581,9 @@ export default function BookingSection() {
                   )}
 
                   {quote && <div role="status" className="rounded-lg border border-border bg-white p-4 space-y-2">
+                    <h3 className="font-semibold text-primary">Review your appointment</h3>
+                    <p>{formatDay(form.preferred_date)} · {timeWindowLabel(form.preferred_time)} · Omaha time</p>
+                    <p className="break-words">{form.draw_address}</p>
                     <p>One-way driving distance: {quote.miles.toFixed(2)} miles (first 25 included)</p>
                     <p>Collection: $80.00</p><p>Travel: ${(quote.travel/100).toFixed(2)}</p>
                     <p className="font-semibold">Total due now: ${(quote.total/100).toFixed(2)}</p>
@@ -587,7 +604,7 @@ export default function BookingSection() {
                         Submitting request...
                       </>
                     ) : (
-                      paymentsEnabled ? (bookingMethod==='invoice' ? "Request appointment and invoice" : "Calculate Total") : "Request My Appointment"
+                      paymentsEnabled ? (bookingMethod==='invoice' ? "Submit invoice request" : "Calculate Total") : "Request My Appointment"
                     )}
                   </button>
                 </form>
