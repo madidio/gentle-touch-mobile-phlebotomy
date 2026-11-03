@@ -407,7 +407,6 @@ export default function BookingSection() {
                         <option value="">Select a time</option>
                         {(paymentsEnabled ? windowsForDay(form.preferred_date).filter(window=>slots.some(slot=>slot.day===form.preferred_date && slot.time_window===window)) : ['Morning (6am-9am)','Midday (9am-12pm)','Afternoon (1pm-4pm)','Evening (4pm-6pm)']).map(window=><option key={window} value={window} disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window===window)}>{timeWindowLabel(window)}</option>)}
                       </select>
-                      {paymentsEnabled && <p className="mt-2 text-sm text-muted-foreground">All times are Omaha time. Monday–Friday 6 a.m.–6 p.m.; Saturday 8 a.m.–3 p.m.; closed Sunday. Booking opens from tomorrow through the next 90 days.</p>}
                       {paymentsEnabled && form.preferred_date && !slots.some(s=>s.day===form.preferred_date) && <p role="status" className="mt-2 text-sm">No windows are available on this date. Please choose another date.</p>}
                     </div>
                   </div>
