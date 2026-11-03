@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { paymentsEnabled, paymentApi } from "@/lib/payments";
-import {windowsForDay,addDays} from "../../../shared/schedule.mjs";
+import {windowsForDay,addDays,BOOKING_DAYS} from "../../../shared/schedule.mjs";
 
 const FORMSPREE_ENDPOINT =
   import.meta.env.VITE_FORMSPREE_ENDPOINT ||
@@ -59,7 +59,6 @@ function timeWindowLabel(window) {
   return window.replace(/\((\d+)(am|pm)-(\d+)(am|pm)\)/,(_,start,startPeriod,end,endPeriod)=>
     startPeriod===endPeriod ? `(${start}–${end} ${endPeriod.toUpperCase()})` : `(${start} ${startPeriod.toUpperCase()}–${end} ${endPeriod.toUpperCase()})`);
 }
-const dateLabel=day=>new Intl.DateTimeFormat('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(day+'T12:00:00Z'));
 
 export default function BookingSection() {
   const [form, setForm] = useState(initialForm);
@@ -371,26 +370,17 @@ export default function BookingSection() {
                         </span>
                       </label>
 
-                      {paymentsEnabled ? <select
-                        id="preferred_date"
-                        name="preferred_date"
-                        required
-                        value={form.preferred_date}
-                        onChange={handleChange}
-                        className={inputClass}
-                      >
-                        <option value="">Select an available date</option>
-                        {[...new Set(slots.map(slot=>slot.day))].filter(day=>day>=minimumDate).sort().map(day=><option key={day} value={day}>{dateLabel(day)}</option>)}
-                      </select> : <input
+                      <input
                         id="preferred_date"
                         name="preferred_date"
                         type="date"
                         required
                         min={minimumDate}
+                        max={paymentsEnabled ? addDays(getTodayString(),BOOKING_DAYS) : undefined}
                         value={form.preferred_date}
                         onChange={handleChange}
                         className={inputClass}
-                      />}
+                      />
 
                     </div>
 
