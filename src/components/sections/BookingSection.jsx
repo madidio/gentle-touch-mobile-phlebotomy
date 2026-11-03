@@ -281,7 +281,7 @@ export default function BookingSection() {
                         <span><span className="block font-semibold text-primary">{option.title}</span><span className="mt-1 block text-sm text-foreground/70">{option.description}</span></span>
                       </label>)}
                     </div>
-                    <p className="text-sm text-foreground/70">Blood draw: <strong>$80</strong>. The first 25 one-way driving miles are included; additional miles are $0.725 each. We calculate travel from your visit address.</p>
+                    <p className="text-sm text-foreground/70">Blood draw: <strong>$80</strong>. Includes the first 25 one-way driving miles from our Omaha business location to your visit address. Additional miles are $0.725 each.</p>
                     {bookingMethod==='invoice' && <p className="text-sm text-foreground/70">Your slot is held for up to 24 hours or until the window starts, whichever comes first. No payment is taken when you submit.</p>}
                   </fieldset>}
                   {/* Honeypot field */}
