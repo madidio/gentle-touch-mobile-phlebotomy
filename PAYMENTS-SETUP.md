@@ -15,7 +15,7 @@ Implementation is in the existing Vite/Vercel project. Live payment is disabled 
 
 The existing fields and visual classes remain. Calculate Total produces a server quote valid for 30 minutes until payment starts. Travel is computed using Google's recommended driving route from 623 N 132nd St, Omaha, NE 68154, excluding the first 25 one-way miles, at $0.725 per additional mile, rounded only at final cents. Display miles are rounded for readability; charge uses full route meters. Checkout is card-only, for immediate payment verification. No medical fields, addresses, appointment dates, special instructions or fasting details are sent to Stripe. Stripe receives email, an opaque booking ID, and generic item descriptions.
 
-Pending sessions reserve windows until paid, expired via webhook, or cancelled by the administrator. Paid webhooks confirm the window, not a precise arrival minute. The return page polls for verified database status; it never marks payment successful on redirect alone. A lost return-page browser token requires staff confirmation. Formspree email notifications for new paid appointments are not implemented; staff must monitor the administrator page and Stripe receipts.
+Pending sessions reserve windows until paid, expired via webhook, or cancelled by the administrator. Paid webhooks confirm the window, not a precise arrival minute. The return page polls for verified database status; it never marks payment successful on redirect alone. A lost return-page browser token requires staff confirmation. Formspree notifications are queued for new invoice requests and verified paid appointments; use Payments Admin to monitor pending notification acceptance and send a delivery test.
 
 For invoices: create a quote in /admin/payments after documenting patient policy acceptance. Review its total, then explicitly choose Email invoice. Test-mode Stripe may not deliver invoice emails automatically; verify in the test Dashboard and use its hosted invoice preview/test delivery controls. Live email delivery must be verified before launch. Existing patient email requests can be manually entered; no automatic historical import occurs.
 
@@ -80,3 +80,13 @@ New patient invoice requests reserve their selected window immediately as a pend
 Patients see the deadline after submission. Administrators see it in Payments Admin and can release a hold using Cancel under policy. Sending an invoice preserves the original deadline. The existing database unique indexes and overlap trigger protect holds and paid bookings alike.
 
 Expired holds are reconciled during availability refreshes, new quote/request submissions, and administrator list loads (up to 20 per request). Availability refreshes every minute while the booking page is open; no separate scheduled job is required. A hold remains unavailable until reconciliation finishes. An attached unpaid invoice is voided before release; a paid invoice keeps its reservation for webhook confirmation. If Stripe cannot confirm closure, the reservation stays held.
+
+## Owner email notifications
+
+New invoice requests enqueue a requested notification in the booking payload when the reservation commits. Stripe-verified paid transitions enqueue a paid notification in the same database transaction as the payment update. Existing records are not bulk emailed.
+
+Production sends to the existing VITE_FORMSPREE_ENDPOINT (fallback: the existing appointment form). Its verified email action routes notifications to gentletouchlabs27@gmail.com. Emails contain a generic event and booking reference, with a link to authenticated Payments Admin; they omit patient contact and medical details. Preview and development do not send notifications.
+
+Sending happens after booking/payment commit. Failed sends stay queued with exponential backoff, up to one hour, and retry on availability refresh, admin list loads, or Stripe webhook processing. Pending notifications are visible in Payments Admin. These are opportunistic retries, not a scheduled background worker; reopening the admin page resumes them. Successful sends are marked accepted to avoid routine repeat sends. A provider acceptance followed by a database commit failure can still produce a duplicate email on retry.
+
+The authenticated Send test email action sends only a diagnostic message, never a booking or Stripe transaction. Provider acceptance is distinct from inbox delivery; verify the fresh message in Gmail, including Spam.

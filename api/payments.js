@@ -1,3 +1,4 @@
+import {flushNotifications,deliverNotification} from '../server/notifications.mjs';
 import {holdDeadline,expireInvoiceHolds} from '../server/holds.mjs';
 import { randomUUID } from 'node:crypto';
 import * as services from '../server/services.mjs';
@@ -20,6 +21,7 @@ export function createPaymentHandler(overrides={}) {
   const b=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
   if(['availability','quote','request_invoice'].includes(a)) await expireInvoiceHolds({transaction,stripe});
   if(a==='availability') {
+   await flushNotifications({transaction});
    const today=chicagoDay();await ensureRecurringSlots(db(),today);
    const {rows}=await db().query(`SELECT to_char(s.day,'YYYY-MM-DD') AS day,s.time_window FROM payment_slots s WHERE s.day>$1 AND s.day<=$2 AND ${OPEN_WINDOW} ORDER BY s.day,s.start_minute`,[today,addDays(today,BOOKING_DAYS)]);
    return res.json({slots:rows,timezone:'America/Chicago',through:addDays(today,BOOKING_DAYS)});
@@ -46,7 +48,7 @@ export function createPaymentHandler(overrides={}) {
    if(!available.rowCount) fail('This appointment window is unavailable.');
    const p=await routePrice(f.draw_address);const id=randomUUID();
    const invoiceRequest=a==='request_invoice';
-   if(invoiceRequest)payload.hold_expires_at=holdDeadline(f.preferred_date,f.preferred_time);
+   if(invoiceRequest){payload.hold_expires_at=holdDeadline(f.preferred_date,f.preferred_time);payload.email_alerts={requested:{queued_at:new Date().toISOString()}};}
    const save=async c=>{
     if(invoiceRequest){
      await c.query('SELECT pg_advisory_xact_lock(hashtext($1))',[f.preferred_date]);
@@ -55,11 +57,12 @@ export function createPaymentHandler(overrides={}) {
     }
     await c.query('INSERT INTO payment_bookings(id,token_hash,request_key,payload,day,time_window,distance_meters,total,travel,policy_version,status) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[id,hash(b.token),b.requestKey,payload,f.preferred_date,f.preferred_time,p.distanceMeters,p.total,p.travel,POLICY_VERSION,invoiceRequest?'pending':'quoted']);
    };
-   if(invoiceRequest)await transaction(save);else await save(db());
+   if(invoiceRequest){await transaction(save);await flushNotifications({transaction});}else await save(db());
    return res.json({id,...p,status:invoiceRequest?'pending':'quoted',holdExpiresAt:payload.hold_expires_at});
   }
-  const isAdmin=['list','slot','invoice','cancel','schedule','block','unblock'].includes(a);if(isAdmin) admin(req);
-  if(a==='list') {await expireInvoiceHolds({transaction,stripe});const {rows}=await db().query("SELECT id,payload->>'first_name' AS first_name,payload->>'last_name' AS last_name,payload->>'email' AS email,payload->>'phone' AS phone,payload->>'draw_address' AS draw_address,(payload->>'invoice_requested')='true' AS invoice_requested,payload->>'hold_expires_at' AS hold_expires_at,to_char(day,'YYYY-MM-DD') AS day,time_window,status,channel,total,travel,created_at FROM payment_bookings ORDER BY created_at DESC LIMIT 100");return res.json({bookings:rows});}
+  const isAdmin=['list','slot','invoice','cancel','schedule','block','unblock','test_notification'].includes(a);if(isAdmin) admin(req);
+  if(a==='test_notification'){if(process.env.VERCEL_ENV!=='production')fail('Email tests are available on production only.',400);try{await deliverNotification('test',randomUUID());return res.json({accepted:true});}catch{fail('The email service did not accept the test. No delivery has been confirmed.',502);}}
+  if(a==='list') {await flushNotifications({transaction});await expireInvoiceHolds({transaction,stripe});const {rows}=await db().query("SELECT id,payload->>'first_name' AS first_name,payload->>'last_name' AS last_name,payload->>'email' AS email,payload->>'phone' AS phone,payload->>'draw_address' AS draw_address,(payload->>'invoice_requested')='true' AS invoice_requested,payload->>'hold_expires_at' AS hold_expires_at,payload->'email_alerts' AS email_alerts,to_char(day,'YYYY-MM-DD') AS day,time_window,status,channel,total,travel,created_at FROM payment_bookings ORDER BY created_at DESC LIMIT 100");return res.json({bookings:rows});}
   if(a==='schedule') {
    const {rows}=await db().query("SELECT to_char(day,'YYYY-MM-DD') AS day,time_window,reason FROM payment_schedule_blocks WHERE day>=$1 ORDER BY day,time_window",[chicagoDay()]);
    return res.json({blocks:rows});
