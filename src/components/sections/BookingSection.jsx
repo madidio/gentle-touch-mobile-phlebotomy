@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { paymentsEnabled, paymentApi } from "@/lib/payments";
-import {windowsForDay,addDays,BOOKING_DAYS} from "../../../shared/schedule.mjs";
+import {windowsForDay,addDays} from "../../../shared/schedule.mjs";
 
 const FORMSPREE_ENDPOINT =
   import.meta.env.VITE_FORMSPREE_ENDPOINT ||
@@ -54,6 +54,12 @@ function getTodayString() {
   const part=type=>parts.find(p=>p.type===type).value;
   return `${part('year')}-${part('month')}-${part('day')}`;
 }
+
+function timeWindowLabel(window) {
+  return window.replace(/\((\d+)(am|pm)-(\d+)(am|pm)\)/,(_,start,startPeriod,end,endPeriod)=>
+    startPeriod===endPeriod ? `(${start}–${end} ${endPeriod.toUpperCase()})` : `(${start} ${startPeriod.toUpperCase()}–${end} ${endPeriod.toUpperCase()})`);
+}
+const dateLabel=day=>new Intl.DateTimeFormat('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}).format(new Date(day+'T12:00:00Z'));
 
 export default function BookingSection() {
   const [form, setForm] = useState(initialForm);
@@ -365,17 +371,27 @@ export default function BookingSection() {
                         </span>
                       </label>
 
-                      <input
+                      {paymentsEnabled ? <select
+                        id="preferred_date"
+                        name="preferred_date"
+                        required
+                        value={form.preferred_date}
+                        onChange={handleChange}
+                        className={inputClass}
+                      >
+                        <option value="">Select an available date</option>
+                        {[...new Set(slots.map(slot=>slot.day))].filter(day=>day>=minimumDate).sort().map(day=><option key={day} value={day}>{dateLabel(day)}</option>)}
+                      </select> : <input
                         id="preferred_date"
                         name="preferred_date"
                         type="date"
                         required
                         min={minimumDate}
-                        max={paymentsEnabled ? addDays(getTodayString(),BOOKING_DAYS) : undefined}
                         value={form.preferred_date}
                         onChange={handleChange}
                         className={inputClass}
-                      />
+                      />}
+
                     </div>
 
                     <div>
@@ -391,6 +407,7 @@ export default function BookingSection() {
 
                       <select
                         id="preferred_time"
+                        disabled={paymentsEnabled && !form.preferred_date}
                         name="preferred_time"
                         required
                         value={form.preferred_time}
@@ -398,7 +415,7 @@ export default function BookingSection() {
                         className={inputClass}
                       >
                         <option value="">Select a time</option>
-                        {(paymentsEnabled ? windowsForDay(form.preferred_date) : ['Morning (6am-9am)','Midday (9am-12pm)','Afternoon (1pm-4pm)','Evening (4pm-6pm)']).map(window=><option key={window} value={window} disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window===window)}>{window}</option>)}
+                        {(paymentsEnabled ? windowsForDay(form.preferred_date).filter(window=>slots.some(slot=>slot.day===form.preferred_date && slot.time_window===window)) : ['Morning (6am-9am)','Midday (9am-12pm)','Afternoon (1pm-4pm)','Evening (4pm-6pm)']).map(window=><option key={window} value={window} disabled={paymentsEnabled && !slots.some(s=>s.day===form.preferred_date && s.time_window===window)}>{timeWindowLabel(window)}</option>)}
                       </select>
                       {paymentsEnabled && <p className="mt-2 text-sm text-muted-foreground">All times are Omaha time. Monday–Friday 6 a.m.–6 p.m.; Saturday 8 a.m.–3 p.m.; closed Sunday. Booking opens from tomorrow through the next 90 days.</p>}
                       {paymentsEnabled && form.preferred_date && !slots.some(s=>s.day===form.preferred_date) && <p role="status" className="mt-2 text-sm">No windows are available on this date. Please choose another date.</p>}
