@@ -3,7 +3,7 @@ export const paidNotificationSQL = "payload=jsonb_set(payload,'{email_alerts}',C
 export function notificationMessage(kind,id){
  const titles={requested:'New appointment request — review and send invoice',paid:'Appointment confirmed — payment received',test:'Gentle Touch email alerts — delivery test'};
  if(!titles[kind])throw new Error('Unknown email notification');
- return {_subject:titles[kind],email:'gentletouchlabs27@gmail.com',form_type:'Booking notification',notification_id:`${id}:${kind}`,message:`${titles[kind]}. ${kind==='test'?'This is a test only. No appointment, invoice, or charge was created.':'Open Payments Admin to review the details.'} Sign in at https://omahagentletouchlabs.com/admin/payments. Patient details are available in the administrator page.`};
+ return {_subject:(process.env.VERCEL_ENV==='preview'?'[TEST] ':'')+titles[kind],email:'gentletouchlabs27@gmail.com',form_type:'Booking notification',notification_id:`${id}:${kind}`,message:`${titles[kind]}. ${kind==='test'?'This is a test only. No appointment, invoice, or charge was created.':'Open Payments Admin to review the details.'} Sign in at https://omahagentletouchlabs.com/admin/payments. Patient details are available in the administrator page.`};
 }
 export async function deliverNotification(kind,id,{fetchImpl=fetch,endpoint=process.env.VITE_FORMSPREE_ENDPOINT||'https://formspree.io/f/xgogzqep'}={}){
  const url=new URL(endpoint);if(url.protocol!=='https:'||url.hostname!=='formspree.io'||!/^\/f\/[a-zA-Z0-9]+$/.test(url.pathname)||url.search||url.username||url.password)throw new Error('Email notification endpoint is invalid.');
@@ -14,7 +14,7 @@ export async function deliverNotification(kind,id,{fetchImpl=fetch,endpoint=proc
 }
 // Queued in the same booking transaction; sending happens only after it commits.
 // Failed sends remain durable and are retried on availability/admin reads or webhooks.
-export async function flushNotifications({transaction=runTransaction,send=deliverNotification,enabled=process.env.VERCEL_ENV==='production',now=()=>Date.now()}={}){
+export async function flushNotifications({transaction=runTransaction,send=deliverNotification,enabled=process.env.VERCEL_ENV==='production'||(process.env.VERCEL_ENV==='preview'&&process.env.PAID_EMAIL_VERIFICATION==='true'),now=()=>Date.now()}={}){
  if(!enabled)return {accepted:0,failed:0,disabled:true};
  try{return await transaction(async c=>{
   const result={accepted:0,failed:0};
