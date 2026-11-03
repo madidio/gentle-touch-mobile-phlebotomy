@@ -19,7 +19,7 @@ const rows = [
   {
     service: "Travel Fee (Beyond 25 miles)",
     price: "$0.725/mile",
-    details: "Applied to round-trip mileage beyond 25 miles.",
+    details: "Applied to one-way driving miles beyond the first 25 miles.",
   },
 ];
 
