@@ -103,7 +103,7 @@ export default function PricingTable() {
         </div>
 
         <p className="mt-6 text-sm text-foreground/50">
-          Medicare/Medicaid not accepted. Card or HSA only. Prices subject to
+          Medicare/Medicaid not accepted. Cards, HSA cards, and Venmo accepted. Prices subject to
           change. Contact us for special scheduling needs.
         </p>
       </div>
