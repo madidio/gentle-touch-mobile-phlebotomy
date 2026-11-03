@@ -9,7 +9,7 @@ export async function deliverNotification(kind,id,{fetchImpl=fetch,endpoint=proc
  const url=new URL(endpoint);if(url.protocol!=='https:'||url.hostname!=='formspree.io'||!/^\/f\/[a-zA-Z0-9]+$/.test(url.pathname)||url.search||url.username||url.password)throw new Error('Email notification endpoint is invalid.');
  const response=await fetchImpl(url.href,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(notificationMessage(kind,id)),signal:AbortSignal.timeout(5000)});
  const data=await response.json().catch(()=>null);
- if(!response.ok || !(data?.ok===true||data?.success===true))throw new Error('Email service did not accept the notification. Delivery has not been confirmed.');
+ if(!response.ok || !(data?.ok===true||data?.success===true))throw Object.assign(new Error('Email service did not accept the notification. Delivery has not been confirmed.'),{notificationCode:`HTTP_${response.status}_${data?.ok===true?'OK':'NOT_ACCEPTED'}`});
  return {accepted:true};
 }
 // Queued in the same booking transaction; sending happens only after it commits.
@@ -25,7 +25,7 @@ export async function flushNotifications({transaction=runTransaction,send=delive
     if(event.accepted_at || (event.next_attempt_at&&Date.parse(event.next_attempt_at)>now()))continue;
     const attempts=(event.attempts||0)+1;
     try{await send(kind,row.id);events[kind]={...event,attempts,accepted_at:new Date(now()).toISOString()};result.accepted++;}
-    catch{events[kind]={...event,attempts,next_attempt_at:new Date(now()+Math.min(3600,60*2**Math.min(attempts-1,6))*1000).toISOString()};result.failed++;}
+    catch(e){events[kind]={...event,attempts,failure_code:e.notificationCode||e.name,next_attempt_at:new Date(now()+Math.min(3600,60*2**Math.min(attempts-1,6))*1000).toISOString()};result.failed++;}
    }
    await c.query("UPDATE payment_bookings SET payload=jsonb_set(payload,'{email_alerts}',$2::jsonb,true) WHERE id=$1",[row.id,JSON.stringify(events)]);
   }
