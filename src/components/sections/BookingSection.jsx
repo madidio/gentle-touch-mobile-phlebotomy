@@ -67,6 +67,7 @@ export default function BookingSection() {
   const [error, setError] = useState("");
 
   const [quote, setQuote] = useState(null);
+  const [bookingMethod, setBookingMethod] = useState("online");
   const [slots, setSlots] = useState([]);
   const requestRef = useRef(null);
   useEffect(() => {
@@ -115,7 +116,8 @@ export default function BookingSection() {
       if (!form.cancellation_acknowledged) throw new Error('Please agree to the policies.');
       if (paymentsEnabled) {
         if (!requestRef.current) requestRef.current = {requestKey:crypto.randomUUID(),token:crypto.randomUUID()+crypto.randomUUID()};
-        const result=await paymentApi('quote',{form,...requestRef.current});
+        const result=await paymentApi(bookingMethod==='invoice' ? 'request_invoice' : 'quote',{form,...requestRef.current});
+        if(bookingMethod==='invoice'){setForm(initialForm);requestRef.current=null;setSuccess(true);return;}
         sessionStorage.setItem('gentle-touch-payment',JSON.stringify({...requestRef.current,id:result.id}));
         setQuote(result); return;
       }
@@ -191,7 +193,7 @@ export default function BookingSection() {
               </h2>
 
               <p className="mt-3 text-base leading-relaxed text-foreground/70">
-                {paymentsEnabled ? "Choose an available window, review your itemized total, and pay securely to confirm your appointment." : "Complete the form below and we will contact you to review availability and confirm your appointment request. Submitting this form does not create a confirmed appointment."}
+                {paymentsEnabled ? "Choose an available window, then pay online or request an invoice for review." : "Complete the form below and we will contact you to review availability and confirm your appointment request. Submitting this form does not create a confirmed appointment."}
               </p>
 
               <div className="mt-3 text-sm leading-relaxed text-foreground/70">
@@ -228,13 +230,11 @@ export default function BookingSection() {
                   />
 
                   <p className="mt-4 text-lg font-semibold text-primary">
-                    Thank you! Your appointment request has been received.
+                    {paymentsEnabled && bookingMethod==='invoice' ? "Your invoice request has been received." : "Thank you! Your appointment request has been received."}
                   </p>
 
                   <p className="mt-2 max-w-lg text-sm leading-relaxed text-foreground/70">
-                    We will contact you to review availability and confirm the
-                    appointment details. Your appointment is not confirmed
-                    until you hear from us.
+                    {paymentsEnabled && bookingMethod==='invoice' ? "We will review your request and email an invoice with the draw fee and any mileage charge. No payment has been taken. Your window is not reserved yet; your appointment is confirmed after payment and availability verification." : "We will contact you to review availability and confirm the appointment details. Your appointment is not confirmed until you hear from us."}
                   </p>
 
                   <button
@@ -250,6 +250,12 @@ export default function BookingSection() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+                  {paymentsEnabled && <fieldset className="rounded-lg border border-border bg-white p-4 space-y-3">
+                    <legend className={labelClass}>How would you like to book?</legend>
+                    <label className="flex items-center gap-3"><input type="radio" name="booking_method" value="online" checked={bookingMethod==='online'} onChange={()=>{setBookingMethod('online');setQuote(null);requestRef.current=null;}}/> Pay online to confirm</label>
+                    <label className="flex items-center gap-3"><input type="radio" name="booking_method" value="invoice" checked={bookingMethod==='invoice'} onChange={()=>{setBookingMethod('invoice');setQuote(null);requestRef.current=null;}}/> Request appointment—receive an invoice</label>
+                    {bookingMethod==='invoice' && <p className="text-sm text-foreground/70">We will review your details and email an invoice before your visit. Collection is $80 plus $0.725 per one-way driving mile beyond 25 miles. Submitting a request does not reserve a window or take payment.</p>}
+                  </fieldset>}
                   {/* Honeypot field */}
                   <div className="hidden" aria-hidden="true">
                     <label htmlFor="booking-company">
@@ -577,7 +583,7 @@ export default function BookingSection() {
                         Submitting request...
                       </>
                     ) : (
-                      paymentsEnabled ? "Calculate Total" : "Request My Appointment"
+                      paymentsEnabled ? (bookingMethod==='invoice' ? "Request appointment and invoice" : "Calculate Total") : "Request My Appointment"
                     )}
                   </button>
                 </form>
