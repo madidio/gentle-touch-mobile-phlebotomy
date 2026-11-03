@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {price,refundAmount,chicagoDay} from '../server/pricing.mjs';
 test('included mileage and fractional mileage cent rounding',()=>{
  assert.equal(price(0).total,8000);assert.equal(price(40233).travel,0);
- assert.equal(price(64374).travel,1088);assert.equal(price(80467).travel,1812);
+ assert.equal(price(64374).travel,1125);assert.equal(price(80467).travel,1875);
  assert.throws(()=>price(-1));assert.throws(()=>price(NaN));
 });
 test('calendar-day refund uses Omaha midnight, including DST',()=>{

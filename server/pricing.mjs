@@ -2,8 +2,8 @@ export const POLICY = 'Before the appointment calendar day (America/Chicago): re
 export const POLICY_VERSION = '2026-10-30';
 export function price(distanceMeters) {
   if (!Number.isSafeInteger(distanceMeters) || distanceMeters < 0) throw new Error('Invalid route distance');
-  // Integer arithmetic: 1 mile = 1609.344 meters; $0.725 = 72.5 cents.
-  const travel = Number((BigInt(Math.max(0, distanceMeters * 1000 - 40233600)) * 145n + 1609344n) / 3218688n);
+  // Integer arithmetic: 1 mile = 1609.344 meters; $0.75 = 75 cents.
+  const travel = Number((BigInt(Math.max(0, distanceMeters * 1000 - 40233600)) * 150n + 1609344n) / 3218688n);
   return { distanceMeters, miles: distanceMeters / 1609.344, collection: 8000, travel, total: 8000 + travel };
 }
 export function chicagoDay(now = new Date()) {
