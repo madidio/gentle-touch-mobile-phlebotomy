@@ -1,3 +1,4 @@
+import VisitChecklist from '@/components/patient/VisitChecklist';
 import React,{useEffect,useState} from 'react';
 import {paymentApi} from '@/lib/payments';
 export default function PaymentResult(){
@@ -8,5 +9,5 @@ export default function PaymentResult(){
  setMessage(r.status==='paid'?'Payment verified. Your appointment window is confirmed.':['cancelled','expired','refunded','refund_pending','refund_failed'].includes(r.status)?`Appointment status: ${r.status.replaceAll('_',' ')}. Contact us with questions.`:'Payment confirmation is pending. Please do not pay again.');
  if(r.status==='pending')timer=setTimeout(check,3000);
  }catch(e){if(active)setMessage(e.message);}};check();return()=>{active=false;clearTimeout(timer);};},[]);
- return <main className="mx-auto max-w-3xl px-6 py-20"><h1 className="text-3xl font-bold text-primary">Appointment payment</h1><p role="status" className="my-6">{message}</p><a className="underline" href="/">Return home</a></main>;
+ return <main className="mx-auto max-w-3xl px-6 py-20"><h1 className="text-3xl font-bold text-primary">Appointment payment</h1><p role="status" className="my-6">{message}</p><VisitChecklist/><a className="underline" href="/">Return home</a></main>;
 }

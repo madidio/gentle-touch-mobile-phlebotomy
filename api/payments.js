@@ -1,3 +1,4 @@
+import {completeVisit,approveReschedule} from '../server/patient-care.mjs';
 import {flushNotifications,deliverNotification} from '../server/notifications.mjs';
 import {holdDeadline,expireInvoiceHolds} from '../server/holds.mjs';
 import { randomUUID } from 'node:crypto';
@@ -61,9 +62,9 @@ export function createPaymentHandler(overrides={}) {
    if(invoiceRequest){await transaction(save);await flushNotifications({transaction});}else await save(db());
    return res.json({id,...p,status:invoiceRequest?'pending':'quoted',holdExpiresAt:payload.hold_expires_at});
   }
-  const isAdmin=['list','slot','invoice','cancel','schedule','block','unblock','test_notification'].includes(a);if(isAdmin) admin(req);
+  const isAdmin=['list','slot','invoice','cancel','schedule','block','unblock','test_notification','complete_visit','approve_reschedule','resolve_change'].includes(a);if(isAdmin) admin(req);
   if(a==='test_notification'){if(process.env.VERCEL_ENV!=='production')fail('Email tests are available on production only.',400);try{await deliverNotification('test',randomUUID());return res.json({accepted:true});}catch{fail('The email service did not accept the test. No delivery has been confirmed.',502);}}
-  if(a==='list') {await flushNotifications({transaction});await expireInvoiceHolds({transaction,stripe});const {rows}=await db().query("SELECT id,payload->>'first_name' AS first_name,payload->>'last_name' AS last_name,payload->>'email' AS email,payload->>'phone' AS phone,payload->>'draw_address' AS draw_address,(payload->>'invoice_requested')='true' AS invoice_requested,payload->>'hold_expires_at' AS hold_expires_at,payload->'email_alerts' AS email_alerts,to_char(day,'YYYY-MM-DD') AS day,time_window,status,channel,total,travel,created_at FROM payment_bookings ORDER BY created_at DESC LIMIT 100");return res.json({bookings:rows});}
+  if(a==='list') {await flushNotifications({transaction});await expireInvoiceHolds({transaction,stripe});const {rows}=await db().query("SELECT id,payload->>'first_name' AS first_name,payload->>'last_name' AS last_name,payload->>'email' AS email,payload->>'phone' AS phone,payload->>'draw_address' AS draw_address,(payload->>'invoice_requested')='true' AS invoice_requested,payload->>'hold_expires_at' AS hold_expires_at,payload->'email_alerts' AS email_alerts,payload->'change_request' AS change_request,payload->>'visit_completed_at' AS visit_completed_at,to_char(day,'YYYY-MM-DD') AS day,time_window,status,channel,total,travel,created_at FROM payment_bookings ORDER BY created_at DESC LIMIT 100");return res.json({bookings:rows});}
   if(a==='schedule') {
    const {rows}=await db().query("SELECT to_char(day,'YYYY-MM-DD') AS day,time_window,reason FROM payment_schedule_blocks WHERE day>=$1 ORDER BY day,time_window",[chicagoDay()]);
    return res.json({blocks:rows});
@@ -84,12 +85,15 @@ export function createPaymentHandler(overrides={}) {
    const {rows}=await c.query("SELECT *,to_char(day,'YYYY-MM-DD') AS appointment_day FROM payment_bookings WHERE id=$1 FOR UPDATE",[b.id]);const r=rows[0];if(!r) fail('Appointment not found',404);
    if(!isAdmin && (typeof b.token!=='string'||hash(b.token)!==r.token_hash)) fail('Unauthorized',403);
    if(a==='status') return {status:r.status,paid:r.paid_at!==null};
+   if(a==='complete_visit')return completeVisit(c,r);
+   if(a==='approve_reschedule')return approveReschedule(c,r,b.requestId);
+   if(a==='resolve_change'){if(r.payload.change_request?.id!==b.requestId)fail('Request changed. Refresh first.',409);const payload={...r.payload,change_request:{...r.payload.change_request,status:'resolved',resolved_at:new Date().toISOString()}};await c.query('UPDATE payment_bookings SET payload=$2::jsonb WHERE id=$1',[r.id,JSON.stringify(payload)]);return {resolved:true};}
    if(a==='cancel') {
     if(r.status==='cancelled'||r.status==='refunded') return {status:r.status};
     const s=stripe();
     if(r.status==='paid'||r.status==='refund_pending') {
      if(b.exception && (typeof b.reason!=='string'||b.reason.trim().length<5)) fail('Record the exception reason.',400);
-     const amount=r.refund_amount ?? refundAmount(r.total,r.appointment_day,!!b.exception);
+     const amount=r.refund_amount ?? refundAmount(r.total,r.appointment_day,!!b.exception,r.payload.change_request?.kind==='cancel'&&r.payload.change_request.status==='pending'?new Date(r.payload.change_request.requested_at):new Date());
      if(amount>0){if(!r.payment_intent) fail('Payment reference missing; reconcile in Stripe first.');const refund=await s.refunds.create({payment_intent:r.payment_intent,amount,metadata:{booking_id:r.id}},{idempotencyKey:`refund-${r.id}`});await c.query("UPDATE payment_bookings SET status=$2,refund_id=$3,refund_amount=$4,exception_reason=$5 WHERE id=$1",[r.id,refund.status==='succeeded'?'refunded':'refund_pending',refund.id,amount,b.reason||null]);return {status:refund.status,refund:amount};}
     } else {
      if(r.channel==='checkout') {const cs=await s.checkout.sessions.retrieve(r.checkout_id);if(cs.payment_status==='paid'||cs.status==='complete') fail('Payment is processing. Retry after webhook confirmation.');if(cs.status==='open') await s.checkout.sessions.expire(r.checkout_id);}
@@ -135,6 +139,7 @@ export function createPaymentHandler(overrides={}) {
    if(inv.status==='open') await s.invoices.sendInvoice(inv.id,{}, {idempotencyKey:`send-${r.id}`});
    return {url:inv.hosted_invoice_url,status:inv.status};
   });
+  if(['complete_visit','approve_reschedule','resolve_change'].includes(a))await flushNotifications({transaction});
   return res.json(result);
  } catch(e) {
   if(e.type==='StripeAuthenticationError') return res.status(503).json({error:'Stripe rejected the API key. Check STRIPE_SECRET_KEY for this deployment.'});
