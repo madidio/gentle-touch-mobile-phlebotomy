@@ -3,7 +3,7 @@ import {deliverNotification} from './notifications.mjs';
 // The row lock serializes cancellation and concurrent reminder runs. No patient data is logged.
 export const reminderSQL=`SELECT b.id,b.status,b.paid_at,b.day::text AS day,b.time_window,b.total,b.payload
 FROM payment_bookings b JOIN payment_slots s ON s.day=b.day AND s.time_window=b.time_window
-WHERE b.status='paid' AND b.paid_at IS NOT NULL
+WHERE b.payload->>'visit_completed_at' IS NULL AND b.status='paid' AND b.paid_at IS NOT NULL
 AND b.day BETWEEN (now() AT TIME ZONE 'America/Chicago')::date AND (now() AT TIME ZONE 'America/Chicago')::date+1
 AND (b.day+s.start_minute*interval '1 minute') AT TIME ZONE 'America/Chicago'>now()
 AND NOT (COALESCE(b.payload->'email_alerts'->'patient_reminder','{}'::jsonb) ? 'accepted_at')
