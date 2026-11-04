@@ -6,6 +6,7 @@ import Home from "@/pages/Home";
 import ScrollToTop from "@/components/ScrollToTop";
 
 const ManageAppointment = lazy(() => import("@/pages/ManageAppointment"));
+const RecoveryPreview = lazy(() => import("@/pages/RecoveryPreview"));
 const PaymentsAdmin = lazy(() => import("@/pages/PaymentsAdmin"));
 const PaymentResult = lazy(() => import("@/pages/PaymentResult"));
 const About = lazy(() => import("@/pages/About"));
@@ -30,6 +31,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/recovery-preview" element={<RecoveryPreview/>} />
           <Route path="/admin/payments" element={<PaymentsAdmin />} />
           <Route path="/manage-appointment" element={<ManageAppointment />} />
           <Route path="/payment-result" element={<PaymentResult />} />
