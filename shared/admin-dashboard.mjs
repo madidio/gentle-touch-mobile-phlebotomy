@@ -1,12 +1,13 @@
 import {WINDOW_MINUTES} from './schedule.mjs';
-export const PATIENT_EMAIL_LABELS={patient_paid:'Payment confirmation',patient_updated:'Updated appointment',patient_reminder:'Appointment reminder',patient_review:'Review request'};
+export const PATIENT_EMAIL_LABELS={patient_paid:'Payment confirmation',patient_updated:'Updated appointment',patient_reminder:'Appointment reminder',patient_review:'Review request',patient_cancelled:'Cancellation confirmation',patient_refund_update:'Refund update'};
 export function patientEmails(booking){
  return Object.entries(booking.email_alerts||{}).filter(([kind])=>PATIENT_EMAIL_LABELS[kind]).map(([kind,event])=>{
   let state='queued',label='Queued';
   if(event.bounced_at||event.failed_at){state='failed';label=event.bounced_at?'Bounced — contact patient':'Failed — contact patient';}
   else if(event.delivered_at){state='delivered';label='Delivered to mail server';}
   else if(event.accepted_at){state='accepted';label='Accepted — delivery unconfirmed';}
-  else if(!['paid','pending'].includes(booking.status)||((booking.visit_completed_at)&&kind==='patient_reminder')){state='closed';label='Not sent — booking closed';}
+  else if(event.skipped_at){state='closed';label='Not sent — no longer applicable';}
+  else if((!['paid','pending'].includes(booking.status)&&!['patient_cancelled','patient_refund_update'].includes(kind))||((booking.visit_completed_at)&&kind==='patient_reminder')){state='closed';label='Not sent — booking closed';}
   else if(event.attempts>0){state='retry';label='Retry pending';}
   return {kind,event,state,label,title:PATIENT_EMAIL_LABELS[kind]};
  });

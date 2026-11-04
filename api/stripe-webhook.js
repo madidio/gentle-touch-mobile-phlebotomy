@@ -1,3 +1,4 @@
+import {refundBookingStatus,refundUpdateNotificationSQL} from '../server/refund-notices.mjs';
 import {flushNotifications,paidNotificationSQL} from '../server/notifications.mjs';
 import { stripe, stripeMode, transaction } from '../server/services.mjs';
 export const config={api:{bodyParser:false},maxDuration:60};
@@ -27,9 +28,9 @@ export function createWebhookHandler({stripeClient=stripe,runTransaction=transac
    if(r.status==='pending') await c.query(`UPDATE payment_bookings SET status='paid',paid_at=now(),payment_intent=$2,${paidNotificationSQL} WHERE id=$1`,[r.id,pi.id]);
   }
   if(event.type==='refund.updated'||event.type==='refund.failed'){
-   const r=await c.query('SELECT id FROM payment_bookings WHERE refund_id=$1 FOR UPDATE',[o.id]);
+   const r=await c.query('SELECT id,status,payload FROM payment_bookings WHERE refund_id=$1 FOR UPDATE',[o.id]);
    if(!r.rowCount && o.metadata?.booking_id) throw new Error('Refund not yet linked');
-   if(r.rowCount){const current=await s.refunds.retrieve(o.id);await c.query("UPDATE payment_bookings SET status=$2 WHERE refund_id=$1",[o.id,current.status==='succeeded'?'refunded':current.status==='failed'||current.status==='canceled'?'refund_failed':'refund_pending']);}
+   if(r.rowCount){const current=await s.refunds.retrieve(o.id),next=refundBookingStatus(current.status),previous=r.rows[0];const notify=next!==previous.status&&!!previous.payload?.email_alerts?.patient_cancelled?.accepted_at;await c.query(`UPDATE payment_bookings SET status=$2${notify?','+refundUpdateNotificationSQL:''} WHERE refund_id=$1`,[o.id,next]);}
   }
  });await flush({transaction:runTransaction});return res.json({received:true});
  }catch{return res.status(500).json({error:'Webhook processing failed; retry required'});}

@@ -1,3 +1,4 @@
+import {cancellationMessage} from './refund-notices.mjs';
 import {VISIT_CHECKLIST} from '../shared/visit-checklist.mjs';
 import {patientManageURL} from './patient-links.mjs';
 import {transaction as runTransaction} from './services.mjs';
@@ -18,6 +19,7 @@ export function patientConfirmation(id,booking,reminder=false){
  return {email,_subject:reminder?'Reminder: your Gentle Touch appointment':'Your Gentle Touch appointment is confirmed — payment received',notification_id:`${id}:${reminder?'patient_reminder':'patient_paid'}`,message:`${reminder?'This is a reminder of your confirmed Gentle Touch Blood Draw appointment.':'Thank you for choosing Gentle Touch Blood Draw. Your payment has been received and your appointment is confirmed.'}\n\nDate: ${date}\nArrival window: ${booking.time_window} (Omaha time)\nAmount paid: $${(booking.total/100).toFixed(2)}\n\nBefore your visit:\n${VISIT_CHECKLIST.map(item=>'- '+item).join('\n')}\n\n${manage?'Request a reschedule or cancellation: '+manage+'\nRequests require staff confirmation; your appointment stays unchanged until we confirm.\n':''}To request a change or cancellation, you can also reply to this email. Cancellation and refund terms: https://omahagentletouchlabs.com/terms-of-service\n\nGentle Touch Blood Draw\nhttps://omahagentletouchlabs.com`};
 }
 export function patientCareMessage(kind,id,booking){
+ if(['patient_cancelled','patient_refund_update'].includes(kind))return cancellationMessage(kind,id,booking);
  const base=patientConfirmation(id,booking,kind==='patient_reminder');
  if(kind==='patient_updated')return {...base,_subject:'Your updated Gentle Touch appointment',notification_id:`${id}:patient_updated`,message:base.message.replace('Your payment has been received and your appointment is confirmed.','Your appointment change is confirmed. Your existing payment remains applied; no new charge was made.')};
  if(kind==='patient_review'){
@@ -30,13 +32,13 @@ export async function deliverNotification(kind,id,{provider=process.env.PAYMENT_
  if(provider==='resend'){
   const key=apiKey?.trim();const sendingDomain=domain?.trim();
   if(!key?.startsWith('re_') || sendingDomain!=='omahagentletouchlabs.com')throw new Error('Payment email service is not configured.');
-  const message=['patient_paid','patient_reminder','patient_updated','patient_review'].includes(kind)?patientCareMessage(kind,id,booking):notificationMessage(kind,id);
-  const response=await fetchImpl('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','Idempotency-Key':`booking-${id}-${kind}${deliveryKey?'-'+deliveryKey:''}`},body:JSON.stringify({from:`Gentle Touch Blood Draw <alerts@${sendingDomain}>`,to:[message.email],...(kind==='patient_reminder'?{tags:[{name:'notification',value:'patient_reminder'},{name:'booking_id',value:id}]}:{}),...(['patient_paid','patient_reminder','patient_updated','patient_review'].includes(kind)?{reply_to:'gentletouchlabs27@gmail.com'}:{}),subject:message._subject,text:`${message.message}\n\nReference: ${message.notification_id}`}),signal:AbortSignal.timeout(5000)});
+  const message=['patient_paid','patient_reminder','patient_updated','patient_review','patient_cancelled','patient_refund_update'].includes(kind)?patientCareMessage(kind,id,booking):notificationMessage(kind,id);
+  const response=await fetchImpl('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','Idempotency-Key':`booking-${id}-${kind}${deliveryKey?'-'+deliveryKey:''}`},body:JSON.stringify({from:`Gentle Touch Blood Draw <alerts@${sendingDomain}>`,to:[message.email],...(kind==='patient_reminder'?{tags:[{name:'notification',value:'patient_reminder'},{name:'booking_id',value:id}]}:{}),...(['patient_paid','patient_reminder','patient_updated','patient_review','patient_cancelled','patient_refund_update'].includes(kind)?{reply_to:'gentletouchlabs27@gmail.com'}:{}),subject:message._subject,text:`${message.message}\n\nReference: ${message.notification_id}`}),signal:AbortSignal.timeout(5000)});
   const data=await response.json().catch(()=>null);
   if(!response.ok || typeof data?.id!=='string' || !data.id)throw new Error('Payment email service did not accept the notification.');
   return {accepted:true,provider:'resend',providerId:data.id};
  }
- if(['patient_paid','patient_reminder','patient_updated','patient_review'].includes(kind))throw new Error('Patient confirmation requires Resend.');
+ if(['patient_paid','patient_reminder','patient_updated','patient_review','patient_cancelled','patient_refund_update'].includes(kind))throw new Error('Patient confirmation requires Resend.');
  if(provider!=='formspree')throw new Error('Unknown payment email provider.');
  const url=new URL(endpoint);if(url.protocol!=='https:'||url.hostname!=='formspree.io'||!/^\/f\/[a-zA-Z0-9]+$/.test(url.pathname)||url.search||url.username||url.password)throw new Error('Email notification endpoint is invalid.');
  const response=await fetchImpl(url.href,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(notificationMessage(kind,id)),signal:AbortSignal.timeout(5000)});
@@ -50,11 +52,12 @@ export async function flushNotifications({transaction=runTransaction,send=delive
  if(!enabled)return {accepted:0,failed:0,disabled:true};
  try{return await transaction(async c=>{
   const result={accepted:0,failed:0};
-  const {rows}=await c.query(`SELECT id,status,paid_at,day::text AS day,time_window,total,payload,payload->'email_alerts' AS email_alerts FROM payment_bookings b WHERE EXISTS (SELECT 1 FROM jsonb_each(COALESCE(b.payload->'email_alerts','{}'::jsonb)) e WHERE e.key<>'patient_reminder' AND NOT (e.value ? 'accepted_at') AND (e.value->>'next_attempt_at' IS NULL OR (e.value->>'next_attempt_at')::timestamptz<=now())) ORDER BY created_at LIMIT 3 FOR UPDATE SKIP LOCKED`);
+  const {rows}=await c.query(`SELECT id,status,paid_at,day::text AS day,time_window,total,refund_amount,payload,payload->'email_alerts' AS email_alerts FROM payment_bookings b WHERE EXISTS (SELECT 1 FROM jsonb_each(COALESCE(b.payload->'email_alerts','{}'::jsonb)) e WHERE e.key<>'patient_reminder' AND NOT (e.value ? 'accepted_at') AND NOT (e.value ? 'skipped_at') AND (e.value->>'next_attempt_at' IS NULL OR (e.value->>'next_attempt_at')::timestamptz<=now())) ORDER BY created_at LIMIT 3 FOR UPDATE SKIP LOCKED`);
   for(const row of rows){
    const events={...row.email_alerts};
    for(const [kind,event] of Object.entries(events)){
-    if(kind==='patient_reminder' || event.accepted_at || (event.next_attempt_at&&Date.parse(event.next_attempt_at)>now()))continue;
+    if(kind==='patient_reminder' || event.accepted_at || event.skipped_at || (event.next_attempt_at&&Date.parse(event.next_attempt_at)>now()))continue;
+    if(['patient_paid','patient_updated','patient_review'].includes(kind)&&(row.status!=='paid'||(row.payload?.visit_completed_at&&kind!=='patient_review'))){events[kind]={...event,skipped_at:new Date(now()).toISOString()};continue;}
     const attempts=(event.attempts||0)+1;
     try{const delivery=await send(kind,row.id,{booking:row,deliveryKey:event.key});events[kind]={...event,...(delivery?.provider?{provider:delivery.provider,provider_id:delivery.providerId}:{}),attempts,accepted_at:new Date(now()).toISOString()};result.accepted++;}
     catch{events[kind]={...event,attempts,next_attempt_at:new Date(now()+Math.min(3600,60*2**Math.min(attempts-1,6))*1000).toISOString()};result.failed++;}
