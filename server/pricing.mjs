@@ -1,5 +1,6 @@
-export const POLICY = 'Before the appointment calendar day (America/Chicago): refund minus $25. Same-day cancellations are nonrefundable, subject to applicable law and exceptions. Eligible refunds use the original payment method.';
-export const POLICY_VERSION = '2026-10-30';
+import {SAME_DAY_RESCHEDULE} from '../shared/cancellation-policy.mjs';
+export const POLICY = 'Before the appointment calendar day (America/Chicago): refund minus $25. Same-day cancellations are nonrefundable, subject to applicable law and exceptions. Eligible refunds use the original payment method. ' + SAME_DAY_RESCHEDULE;
+export const POLICY_VERSION = '2026-11-10';
 export function collectionFee(drawType = 'Standard') {
   if (!['Standard', 'Stat', 'Fasting', 'Not sure'].includes(drawType)) throw Object.assign(new Error('Choose a valid draw type.'), {status:400});
   return drawType === 'Stat' ? 12000 : 8000;

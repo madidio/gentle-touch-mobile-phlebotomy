@@ -1,3 +1,4 @@
+import {SAME_DAY_RESCHEDULE} from "../../shared/cancellation-policy.mjs";
 
 import React from "react";
 import { Link } from "react-router-dom";
@@ -139,6 +140,10 @@ export default function TermsOfService() {
                   <strong>Same-day cancellations:</strong>{" "}
                   Cancellations made on the scheduled appointment
                   date are non-refundable.
+                </li>
+                <li>
+                  <strong>One-time same-day reschedule:</strong>{" "}
+                  {SAME_DAY_RESCHEDULE}
                 </li>
                 <li>
                   <strong>Refund processing:</strong>{" "}

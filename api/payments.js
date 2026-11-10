@@ -96,7 +96,7 @@ export function createPaymentHandler(overrides={}) {
     const s=stripe();
     if(r.status==='paid'||r.status==='refund_pending') {
      if(b.exception && (typeof b.reason!=='string'||b.reason.trim().length<5)) fail('Record the exception reason.',400);
-     const amount=r.refund_amount ?? refundAmount(r.total,r.appointment_day,!!b.exception,r.payload.change_request?.kind==='cancel'&&r.payload.change_request.status==='pending'?new Date(r.payload.change_request.requested_at):new Date());
+     const amount=r.refund_amount ?? (!b.exception && r.payload.same_day_rescheduled_at ? 0 : refundAmount(r.total,r.appointment_day,!!b.exception,r.payload.change_request?.kind==='cancel'&&r.payload.change_request.status==='pending'?new Date(r.payload.change_request.requested_at):new Date()));
      if(amount>0){if(!r.payment_intent) fail('Payment reference missing; reconcile in Stripe first.');const refund=await s.refunds.create({payment_intent:r.payment_intent,amount,metadata:{booking_id:r.id}},{idempotencyKey:`refund-${r.id}`});await c.query(`UPDATE payment_bookings SET status=$2,refund_id=$3,refund_amount=$4,exception_reason=$5,${r.payload.email_alerts?.patient_cancelled?.accepted_at&&r.status!==refundBookingStatus(refund.status)?refundUpdateNotificationSQL:cancellationNotificationSQL} WHERE id=$1`,[r.id,refundBookingStatus(refund.status),refund.id,amount,b.reason||null]);return {status:refund.status,refund:amount};}
     } else {
      if(r.channel==='checkout') {const cs=await s.checkout.sessions.retrieve(r.checkout_id);if(cs.payment_status==='paid'||cs.status==='complete') fail('Payment is processing. Retry after webhook confirmation.');if(cs.status==='open') await s.checkout.sessions.expire(r.checkout_id);}

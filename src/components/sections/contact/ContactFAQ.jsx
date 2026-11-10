@@ -1,3 +1,4 @@
+import {SAME_DAY_RESCHEDULE} from "../../../../shared/cancellation-policy.mjs";
 import React from "react";
 import {
   Accordion,
@@ -29,7 +30,7 @@ const faqs = [
   },
   {
     q: "What is your cancellation policy?",
-    a: "Cancellations made 24 hours in advance incur a $25 fee. Same-day cancellations are non-refundable.",
+    a: "Cancellations before the appointment day are refunded minus $25. Same-day cancellations are nonrefundable. " + SAME_DAY_RESCHEDULE,
   },
 ];
 

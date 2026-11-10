@@ -1,0 +1,1 @@
+export const SAME_DAY_RESCHEDULE = 'On the appointment day, contact us before your arrival window starts to request one reschedule at no additional charge, subject to availability and approval. Your payment transfers to the replacement appointment. Patient cancellations and missed visits for the replacement are nonrefundable.';

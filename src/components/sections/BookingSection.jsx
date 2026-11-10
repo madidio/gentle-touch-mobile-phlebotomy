@@ -1,3 +1,4 @@
+import {SAME_DAY_RESCHEDULE} from "../../../shared/cancellation-policy.mjs";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Phone,
@@ -542,7 +543,7 @@ export default function BookingSection() {
                       />
 
                       <span className="text-sm leading-relaxed text-foreground/70">
-                        I have read and agree to the <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="underline">Terms of Service</a> and <a href="/services" target="_blank" rel="noopener noreferrer" className="underline">Cancellation &amp; Refund Policy</a>. Cancellations before the appointment calendar day (Omaha time): refund minus $25. Same-day cancellations are nonrefundable, subject to applicable law and exceptions. Eligible refunds use the original payment method.{" "}
+                        I have read and agree to the <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="underline">Terms of Service</a> and <a href="/services" target="_blank" rel="noopener noreferrer" className="underline">Cancellation &amp; Refund Policy</a>. Cancellations before the appointment calendar day (Omaha time): refund minus $25. Same-day cancellations are nonrefundable, subject to applicable law and exceptions. Eligible refunds use the original payment method.{" "}{SAME_DAY_RESCHEDULE}{" "}
                         <span
                           className="text-destructive"
                           aria-hidden="true"
