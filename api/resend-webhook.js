@@ -10,7 +10,9 @@ export function createResendWebhookHandler({record=recordReminderDelivery,flush=
   let event;
   try{
    const chunks=[];let size=0;for await(const chunk of req){size+=Buffer.byteLength(chunk);if(size>256*1024)throw Error('Payload too large');chunks.push(Buffer.from(chunk));}
-   event=new Webhook(secret()).verify(Buffer.concat(chunks).toString('utf8'),req.headers);
+   const payload=Buffer.concat(chunks).toString('utf8');
+   new Webhook(secret()).verify(payload,req.headers);
+   event=JSON.parse(payload);
   }catch{return res.status(400).json({error:'Invalid webhook signature'});}
   try{const result=await record(event);await flush();return res.json({received:true,...result});}
   catch{console.error('Reminder delivery event could not be recorded');return res.status(500).json({error:'Retry required'});}
