@@ -29,7 +29,7 @@ test('reminder emails carry correlation tags but owner emails do not',async()=>{
 test('signed raw webhook works; tampered and missing signatures never access data',async()=>{
  const prior=process.env.VERCEL_ENV;process.env.VERCEL_ENV='production';
  const secret='whsec_'+Buffer.from('test-only-secret-for-webhook-verification').toString('base64');let records=0;
- const handler=createResendWebhookHandler({secret:()=>secret,record:async()=>{records++;return {recorded:true}},flush:async()=>({accepted:1})});
+ const handler=createResendWebhookHandler({secret:()=>secret,record:async event=>{assert.equal(event.type,'email.delivered');records++;return {recorded:true}},flush:async()=>({accepted:1})});
  const payload=JSON.stringify(event()),timestamp=new Date(),wh=new Webhook(secret);
  const headers={'svix-id':'msg_fixture','svix-timestamp':String(Math.floor(timestamp.getTime()/1000)),'svix-signature':wh.sign('msg_fixture',timestamp,payload)};
  const run=async(body,h)=>{const req=Object.assign((async function*(){yield Buffer.from(body)})(),{method:'POST',headers:h});const res={code:200,setHeader(){},status(n){this.code=n;return this},json(body){this.body=body;return this}};await handler(req,res);return res};
