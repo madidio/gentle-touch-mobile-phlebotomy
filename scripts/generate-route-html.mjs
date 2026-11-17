@@ -25,7 +25,7 @@ const routes = [
     path: "/services",
     title: "Mobile Blood Draw Services & Pricing in Omaha",
     description:
-      "Explore mobile blood draw services and pricing from Gentle Touch Mobile Blood Draw, serving patients throughout the Omaha Metro.",
+      "Request an at-home blood draw in Omaha and nearby communities in Douglas and Sarpy counties. Standard visits are $80 before any additional travel fees.",
   },
   {
     path: "/providers",

@@ -54,7 +54,7 @@ export default function Services() {
               href="/services"
               className="inline-flex min-h-[50px] items-center justify-center rounded-xl border-2 border-white px-8 py-3 font-semibold text-white transition hover:bg-white hover:text-primary"
             >
-              View All Services
+              View Omaha Blood Draw Services
             </a>
           </div>
         </div>
